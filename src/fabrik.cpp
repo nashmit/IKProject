@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <numeric> // for std::accumulate()
-#include <cmath> // for atan2()
+#include <cmath> // for acos()
 #include <string>
 #include <array>
 
@@ -13,7 +13,7 @@ std::vector<double> convertPositionsToAngles(std::vector<Point3D> positions,
                                              std::vector<Point3D> startPositions,
                                              int rotationAxis)
 {
-  std::vector<double> result (positions.size(), 0.);
+  std::vector<double> result (positions.size() - 1, 0.);
   std::array<int, 2> coord;
 
   switch (rotationAxis)
@@ -31,13 +31,18 @@ std::vector<double> convertPositionsToAngles(std::vector<Point3D> positions,
       std::cout << "Invalid rotation axis (use 0 for x-axis, 1 y-axis, 2 for z-axis)" << std::endl;
       return std::vector<double>(0);
   }
-
-  for (int i = 0; i < positions.size(); i++)
+  // Calculating angles
+  for (int i = 0; i < positions.size() - 1; i++)
   {
-    auto angle = atan2(positions[i].getCoordinate(coord[0]) -
-                       startPositions[i].getCoordinate(coord[0]),
-                       positions[i].getCoordinate(coord[1]) -
-                       startPositions[i].getCoordinate(coord[1])) * 180 /M_PI;
+    auto a = euclideanDistance(positions[i], positions[i+1]);
+    auto b = euclideanDistance(startPositions[i], startPositions[i+1]);
+    auto c = euclideanDistance(positions[i+1] + startPositions[i] + (-1) * positions[i],
+                               startPositions[i+1] );
+
+    std::cout << "a = " << a << ", b = " << b << ", c = " << c << std::endl;
+    auto x = (pow(a, 2) + pow(b, 2) - pow(c, 2))/(2*a*b);
+    auto angle = acos(x) * 180 /M_PI;
+    std:: cout << "x = " << x << ", => angle: " << angle << std::endl;
     result[i] = angle;
   }
   return result;
@@ -57,6 +62,7 @@ std::vector<double> simpleVersion(std::vector<Point3D> & positions, Point3D targ
   if (distanceRootTarget > std::accumulate(lengths.begin(), lengths.end(), 0.))
   {
     // Target is not within reach
+    std::cout << "Target is not within reach!" << std::endl;
     for(int i = 0; i < positions.size() - 1; i++)
     {
       // Get the distance between target and joint position
@@ -96,6 +102,11 @@ std::vector<double> simpleVersion(std::vector<Point3D> & positions, Point3D targ
         auto lambda = lengths[i] / distancePP;
         positions[i+1] = (1 - lambda) * positions[i] + lambda * positions[i+1];
       }
+    }
+    std::cout << "Target within reach, result:" << std::endl;
+    for (auto position: positions)
+    {
+      std::cout << position << std::endl;
     }
   }
   return convertPositionsToAngles(positions, startPositions, 0);

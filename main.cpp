@@ -81,13 +81,29 @@ int main(int argc, char *argv[]) {
 	{
 		std::cout << "Position:" << position << std::endl;
 	}
+
+	// Testing fabrik
+	Point3D target = {0, 0, 3};
+	auto angles = simpleVersion(positions, target, 0.01);
+
+	std::cout << "Angles check:" << std::endl;
+	for(auto angle : angles)
+	{
+		std::cout << angle << "," << std::endl;
+	}
+	outfile << 1;
+	for(int i = 0; i < angles.size(); i++)
+	{
+		outfile << ", " << angles[i];
+	}
+	outfile << "\n";
 	// Vector to store the start
 	// The Kuka robot has 6dof, the rotating cube has 1, so 6+1=7 DOF in total
 	//Vector4d q_start;
 
 	//q_start << 0., 0., 0., 0.;
 
-	const double tMax = 4;
+	/*const double tMax = 4;
 
 	for (double t = 0; t < tMax; t +=0.1) {
 		// Rotating angle for the cube
@@ -95,7 +111,7 @@ int main(int argc, char *argv[]) {
 
 
 		// Run forward kinematics to obtain the cube's position and orientation depending on alpha
-		/*VectorXd q(4);
+		VectorXd q(4);
 		q[3]=alpha;
 
 		Vector3d pos = CalcBodyToBaseCoordinates(model,  q, cube_id,Vector3d(0,0,0),true);
@@ -122,9 +138,9 @@ int main(int argc, char *argv[]) {
 
 
 		// Set start angles to current result
-		q_start = q;*/
+		q_start = q;
 
-	}
+	}*/
 
 	outfile.close();
 
