@@ -1,3 +1,5 @@
+// NOTE: THIS MAIN STILL NEEDS TO BE WORKED OVER, SINCE THE
+// MODEL (models/chain.lua) HAS BEEN MODIFIED!
 #include <iostream>
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -45,14 +47,14 @@ int main(int argc, char *argv[]) {
 
 	for(auto const& [key, value]: model.mBodyNameMap)
 	{
-		if (key != "base" &&key != "ROOT")
+		if (key != "Base" &&key != "ROOT")
 		{
 			linkIDs.push_back(value);
 		}
 	}
 	std::sort(linkIDs.begin(), linkIDs.end());
 	// For some reason, base ID isnt 0 as expected
-	linkIDs.insert(linkIDs.begin(),model.GetBodyId("base"));
+	linkIDs.insert(linkIDs.begin(),model.GetBodyId("Base"));
 
 	VectorXd q_start(linkIDs.size());
 	VectorXd q(linkIDs.size());
