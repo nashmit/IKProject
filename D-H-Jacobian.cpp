@@ -311,7 +311,28 @@ int main()
     9, 10, 11, 12,
     13, 14, 15, 16;
 
-  std::cout << a;
+  std::cout << a << std::endl;
+
+  D_H_Parameterization Joint1 = D_H_Parameterization(
+          D_H_Parameterization::Type::Revolute, EIGEN_PI, 0.335, 0.075, 0 );
+
+  D_H_Parameterization Joint2 = D_H_Parameterization(
+          D_H_Parameterization::Type::Revolute, 0, 0, 0.365, EIGEN_PI );
+
+  D_H_Parameterization Joint3 = D_H_Parameterization(
+          D_H_Parameterization::Type::Revolute, EIGEN_PI, 0, 0.090, 0 );
+
+  D_H_Parameterization Joint4 = D_H_Parameterization(
+          D_H_Parameterization::Type::Revolute,-EIGEN_PI, 0.405, 0, 0 );
+
+  D_H_Parameterization Joint5 = D_H_Parameterization(
+          D_H_Parameterization::Type::Revolute, EIGEN_PI, 0, 0, 0 );
+
+  D_H_Parameterization Joint6 = D_H_Parameterization(
+          D_H_Parameterization::Type::Revolute, 0, 0.080,0, 0 );
+
+  std::cout << Joint1.GetAsHomogeniousMatrix();
+
 
   return 0;
 }
