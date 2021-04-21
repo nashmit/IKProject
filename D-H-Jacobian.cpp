@@ -96,7 +96,7 @@ public:
       return DOF_Value;
   }
 
-  Matrix4x4d GetDerivativeAtCurrentParametrizationAsMatrix()
+  Matrix4x4d GetDerivativeAtCurrentDHValueAsMatrix()
   {
       Matrix4x4d result;
 
@@ -152,7 +152,7 @@ public:
   {
     double result =
       MatrixProductInterval( 0, Q_i - 2 ).row( J ) *
-      D_Hs[ Q_i - 1 ].GetDerivativeAtCurrentParametrizationAsMatrix() *
+      D_Hs[ Q_i - 1 ].GetDerivativeAtCurrentDHValueAsMatrix() *
       MatrixProductInterval( Q_i, GetSize() - 1 ).col( K );
 
     return result;
