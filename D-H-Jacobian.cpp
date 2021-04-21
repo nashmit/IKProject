@@ -284,17 +284,17 @@ public:
 
     MatrixXd GetJacobian()
     {
-        MatrixXd Jacobian;
+        MatrixXd Jacobian(6,GetSize() );
 
         for (int i = 1; i <= GetSize(); i++)
         {
-            Jacobian(0, i) = DerivativeOf_X_Direction_wrt_Q_i_DOF(i);
-            Jacobian(1, i) = DerivativeOf_Y_Direction_wrt_Q_i_DOF(i);
-            Jacobian(2, i) = DerivativeOf_Z_Direction_wrt_Q_i_DOF(i);
+            Jacobian(0, i-1 ) = DerivativeOf_X_Direction_wrt_Q_i_DOF(i);
+            Jacobian(1, i-1 ) = DerivativeOf_Y_Direction_wrt_Q_i_DOF(i);
+            Jacobian(2, i-1 ) = DerivativeOf_Z_Direction_wrt_Q_i_DOF(i);
 
-            Jacobian(3, i) = DerivativeOf_Psi_Direction_wrt_Q_i_DOF(i);
-            Jacobian(4, i) = DerivativeOf_Theta_Direction_wrt_Q_i_DOF(i);
-            Jacobian(5, i) = DerivativeOf_Phi_Direction_wrt_Q_i_DOF(i);
+            Jacobian(3, i-1 ) = DerivativeOf_Psi_Direction_wrt_Q_i_DOF(i);
+            Jacobian(4, i-1 ) = DerivativeOf_Theta_Direction_wrt_Q_i_DOF(i);
+            Jacobian(5, i-1 ) = DerivativeOf_Phi_Direction_wrt_Q_i_DOF(i);
         }
 
         return Jacobian;
@@ -345,7 +345,9 @@ int main()
 
     Hierarchy.Add_D_H(Joint1).Add_D_H(Joint2).Add_D_H(Joint3).Add_D_H(Joint4).Add_D_H(Joint5).Add_D_H(Joint6);
 
-    std::cout << Hierarchy.MatrixProductInterval( 0, Hierarchy.GetSize() ) << std::endl;
+    std::cout << Hierarchy.MatrixProductInterval( 0, Hierarchy.GetSize() ) << std::endl << std::endl;
+
+    std::cout << "Compute Jacobian: " << std::endl << Hierarchy.GetJacobian();
 
     return 0;
 }
