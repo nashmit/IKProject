@@ -77,9 +77,9 @@ public:
 [ P ] * [ m ] * [ C ] = [F]
 
 where:
-[m] is the D-H matrix corespondig to "Q_i" DOF
-[P] is the product of the D-H matrices in front of matrix that corespond to Q_i DOF
-[C] is the product of the D-H matrice that start after the matrix coresponding to Q_i DOF
+[m] is the D-H matrix corresponding to "Q_i" DOF
+[P] is the product of the D-H matrices in front of matrix that corresponds to Q_i DOF
+[C] is the product of the D-H matricesce that start after the matrix corresponding to Q_i DOF
 [F] is the result of the entire Hierarchy
 
 */

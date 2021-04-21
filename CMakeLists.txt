@@ -5,6 +5,8 @@
 # set the minimum required cmake version for this project
 cmake_minimum_required(VERSION 2.8.9)
 
+add_compile_options(-std=c++11)
+
 # project name
 project (kuka_rbdl)
 
@@ -31,6 +33,7 @@ include_directories(${RBDL_INCLUDE_DIR})
 # add an executable to the project
 # usage: add_executable(EXECUTABLE_NAME CPP_FILE1 CPP_FILE2 CPP_FILE3 ...)
 add_executable(kuka_rbdl main.cpp)
+add_executable(D-H-Jacobian D-H-Jacobian.cpp)
 
 # link libraries to your executable
 # usage: target_link_libraries(EXECUTABLE_NAME LIBRARY1 LIBRARY2 ...)
@@ -40,6 +43,12 @@ target_link_libraries(kuka_rbdl ${EIGEN3_LIBRARIES}
 	${RBDL_LuaModel_LIBRARY}
 	${LUA_LIBRARIES}
 	)
+target_link_libraries(D-H-Jacobian ${EIGEN3_LIBRARIES}
+		${RBDL_LIBRARY}
+		${RBDL_LuaModel_LIBRARY}
+		${LUA_LIBRARIES}
+		)
+
 
 configure_file(kuka+cube.lua kuka+cube.lua COPYONLY)
 #~ configure_file(kuka.obj kuka.obj COPYONLY)
