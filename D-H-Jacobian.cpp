@@ -345,7 +345,7 @@ int main()
 
     Hierarchy.Add_D_H(Joint1).Add_D_H(Joint2).Add_D_H(Joint3).Add_D_H(Joint4).Add_D_H(Joint5).Add_D_H(Joint6);
 
-    std::cout << Hierarchy.MatrixProductInterval( 0, Hierarchy.GetSize() ) << std::endl << std::endl;
+    std::cout << Hierarchy.MatrixProductInterval( 0, Hierarchy.GetSize() - 1 ) << std::endl << std::endl;
 
     std::cout << "Compute Jacobian: " << std::endl << Hierarchy.GetJacobian();
 
