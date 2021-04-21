@@ -61,7 +61,7 @@ public:
 
   }
 
-  Matrix4x4d GetAsMatrix()
+  Matrix4x4d GetAsHomogeniousMatrix()
   {
 
       double DTheta = 0;
@@ -114,6 +114,7 @@ public:
                     0,                                      0,                                          0,                                          0,
                     0,                                      0,                                          0,                                          0;
 
+      return result;
   }
 
 };
@@ -151,7 +152,7 @@ public:
   {
     double result =
       MatrixProductInterval( 0, Q_i - 2 ).row( J ) *
-      D_Hs[ Q_i - 1 ].GetDerivativeAsMatrix() *
+      D_Hs[ Q_i - 1 ].GetDerivativeAtCurrentParametrizationAsMatrix() *
       MatrixProductInterval( Q_i, GetSize() - 1 ).col( K );
 
     return result;
@@ -274,7 +275,7 @@ public:
     Matrix4x4d result = Matrix4x4d::Identity();
 
     for (int i = from; i <= to; i++)
-      result = result * D_Hs[i].GetAsMatrix();
+      result = result * D_Hs[i].GetAsHomogeniousMatrix();
 
     return result;
   }
