@@ -26,6 +26,7 @@ FIND_PACKAGE (Lua51 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${RBDL_INCLUDE_DIR})
 
+
 # ---------------------
 # BUILD THE ACTUAL CODE
 # ---------------------
@@ -33,7 +34,7 @@ include_directories(${RBDL_INCLUDE_DIR})
 # add an executable to the project
 # usage: add_executable(EXECUTABLE_NAME CPP_FILE1 CPP_FILE2 CPP_FILE3 ...)
 add_executable(kuka_rbdl main.cpp)
-add_executable(D-H-Jacobian D-H-Jacobian.cpp)
+add_executable(D-H-JacobianTest D-H-JacobianTest.cpp D_H_Jacobian.cpp D_H_Parameterization.cpp Utils.cpp IK.h)
 
 # link libraries to your executable
 # usage: target_link_libraries(EXECUTABLE_NAME LIBRARY1 LIBRARY2 ...)
@@ -43,7 +44,7 @@ target_link_libraries(kuka_rbdl ${EIGEN3_LIBRARIES}
 	${RBDL_LuaModel_LIBRARY}
 	${LUA_LIBRARIES}
 	)
-target_link_libraries(D-H-Jacobian ${EIGEN3_LIBRARIES}
+target_link_libraries(D-H-JacobianTest ${EIGEN3_LIBRARIES}
 		${RBDL_LIBRARY}
 		${RBDL_LuaModel_LIBRARY}
 		${LUA_LIBRARIES}
