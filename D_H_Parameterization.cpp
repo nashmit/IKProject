@@ -72,9 +72,9 @@ Matrix4x4d D_H_Parameterization::GetDerivativeAtCurrentDHValueAsMatrix()
     if (type == Type::Revolute)
         result <<
             -sin(theta + DOF_Value ),     -cos( alpha ) * cos( theta + DOF_Value ),   sin( alpha ) * cos( theta + DOF_Value ),    -a * sin( theta + DOF_Value ),
-            cos(theta + DOF_Value ),     -cos( alpha ) * sin( theta + DOF_Value ),   sin( alpha ) * sin( theta + DOF_Value ),     a * cos( theta + DOF_Value ),
-                    0,                                      0,                                          0,                                          0,
-                    0,                                      0,                                          0,                                          0;
+             cos(theta + DOF_Value ),     -cos( alpha ) * sin( theta + DOF_Value ),   sin( alpha ) * sin( theta + DOF_Value ),     a * cos( theta + DOF_Value ),
+                        0,                                      0,                                          0,                                          0,
+                        0,                                      0,                                          0,                                          0;
 
     return result;
 }

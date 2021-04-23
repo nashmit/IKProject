@@ -13,4 +13,6 @@
 
 #include "D_H_Jacobian.h"
 
+#include "KuKa_KR5_R850_D_H.h"
+
 #endif //KUKA_RBDL_IK_H
