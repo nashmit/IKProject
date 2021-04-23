@@ -56,8 +56,19 @@ int main()
 
     std::cout << "Compute Jacobian: " << std::endl << Hierarchy.GetJacobian();
 
-    HierarchyOfDHParameterization HierarchyTest1;
-    HierarchyTest1.Add_D_H(Joint1);
+
+    std::cout << std::endl << std::endl;
+
+    HierarchyOfDHParameterization KuKA = Build_KuKa_KR5_R850_D_H();
+
+    std::cout << KuKA.MatrixProductInterval( 0, KuKA.GetSize() - 1 ) << std::endl << std::endl;
+
+    std::cout << "Compute Jacobian: " << std::endl << KuKA.GetJacobian();
+
+
+
+    //HierarchyOfDHParameterization HierarchyTest1;
+    //HierarchyTest1.Add_D_H(Joint1);
 
 
     /*

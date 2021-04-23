@@ -65,6 +65,13 @@ public:
     Matrix4x4d MatrixProductInterval(int from, int to);
 
     MatrixXd GetJacobian();
+
+    // get value of DOF for Joint JointNumber
+    double GetQforJoint( int JointNumber );
+    void SetQforJoint( int  JointNumber, double value );
+
+    VectorXd GetQ();
+    void SetQ( VectorXd Q );
 };
 
 

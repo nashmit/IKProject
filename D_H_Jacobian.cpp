@@ -161,3 +161,35 @@ MatrixXd HierarchyOfDHParameterization::GetJacobian()
 
     return Jacobian;
 }
+
+double HierarchyOfDHParameterization::GetQforJoint(int JointNumber)
+{
+    assert( JointNumber >= 1 && JointNumber <= GetSize() );
+
+    return D_Hs[ JointNumber - 1 ].GetDOF();
+}
+
+void HierarchyOfDHParameterization::SetQforJoint( int  JointNumber, double value )
+{
+    assert( JointNumber >= 1 && JointNumber <= GetSize() );
+
+    D_Hs[ JointNumber - 1 ].SetDOF( value );
+}
+
+VectorXd HierarchyOfDHParameterization::GetQ()
+{
+    VectorXd Q( GetSize() );
+
+    for(int i = 0; i < GetSize(); i++)
+        Q[i] = D_Hs[i].GetDOF();
+
+    return Q;
+}
+
+void HierarchyOfDHParameterization::SetQ( VectorXd Q )
+{
+    assert( Q.size() == GetSize() );
+
+    for(int i = 0; i< GetSize(); i++)
+        D_Hs[i].SetDOF( Q[ i ] );
+}

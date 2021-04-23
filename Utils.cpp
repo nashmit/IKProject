@@ -8,7 +8,7 @@
 Vector3d GetTraslationFromHomogeniousMatrix( Matrix4x4d homogeniousMatrix )
 {
     Vector3d  Translation;
-    Translation<<
+    Translation <<
         homogeniousMatrix(1 - 1, 4 - 1 ),
         homogeniousMatrix(2 - 1, 4 - 1 ),
         homogeniousMatrix(3 - 1, 4 - 1 );
@@ -28,7 +28,7 @@ Vector3d GetRotationsFromHomogeniousMatrix( Matrix4x4d homogeniousMatrix )
 
     double AroundZ = atan2( homogeniousMatrix( 2 - 1, 1 - 1 ), homogeniousMatrix(1 - 1 , 1 - 1 ) );
 
-    Rotations<< AroundX, AroundY, AroundZ;
+    Rotations << AroundX, AroundY, AroundZ;
 
     return Rotations;
 }
