@@ -6,6 +6,7 @@
 #define KUKA_RBDL_IK_H
 
 #include "config.h"
+
 #include "Utils.h"
 
 #include "D_H_Parameterization.h"
