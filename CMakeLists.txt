@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 2.8.9)
 add_compile_options(-std=c++11)
 
 # project name
-project (kuka_rbdl)
+project (IKProject)
 
 # ------------
 # DEPENDENCIES
@@ -33,13 +33,13 @@ include_directories(${RBDL_INCLUDE_DIR})
 
 # add an executable to the project
 # usage: add_executable(EXECUTABLE_NAME CPP_FILE1 CPP_FILE2 CPP_FILE3 ...)
-add_executable(kuka_rbdl main.cpp)
+add_executable(kuka_rbdl_IK_Test kuka_rbdl_IK_Test.cpp)
 add_executable(D-H-JacobianTest D-H-JacobianTest.cpp src/D_H_Jacobian.cpp src/D_H_Parameterization.cpp src/Utils.cpp src/KuKa_KR5_R850_D_H.cpp IK.h)
 
 # link libraries to your executable
 # usage: target_link_libraries(EXECUTABLE_NAME LIBRARY1 LIBRARY2 ...)
 # note : this is completely useless here, as Eigen is header-only 
-target_link_libraries(kuka_rbdl ${EIGEN3_LIBRARIES}
+target_link_libraries(kuka_rbdl_IK_Test ${EIGEN3_LIBRARIES}
 	${RBDL_LIBRARY}
 	${RBDL_LuaModel_LIBRARY}
 	${LUA_LIBRARIES}
