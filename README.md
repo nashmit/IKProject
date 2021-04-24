@@ -15,7 +15,7 @@ sudo make install
 
 
 
-meshup info:
+meshup info ( check init_pos.png for initial configuration ) :
 
 red axes -> positive X axes
 
