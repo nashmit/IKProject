@@ -16,7 +16,7 @@ Point3D rotatePoint(Point3D point, char axis, double angle)
 {
   Matrix3d m;
   Transform<double, 3, Affine> t;
-  
+
   Vector3d vec(point.getXYZ(0),
                point.getXYZ(1),
                point.getXYZ(2));
@@ -30,7 +30,7 @@ Point3D rotatePoint(Point3D point, char axis, double angle)
   t = m;
   auto vec2 = t.linear() * vec;
 
-  std::cout << "Rotation from " << point << " by " << angle << " around axis "
+  std::cout << "Rotation from " << point << " by " << angle*180/M_PI << "° around axis "
   << axis << " gives vector" << Point3D(vec2[0], vec2[1], vec2[2]) << std::endl;
   return {vec2[0], vec2[1], vec2[2]};
 }
@@ -67,7 +67,11 @@ std::vector<double> convertPositionsToAngles(std::vector<Point3D> positions,
         startPositions[i] = positions[i];
         std::cout << " to "<< startPositions[i] << std::endl;
 
-        auto rotatedPoint = rotatePoint(test, rotationAxes[i-1], result[i-1]/180*M_PI);
+        Point3D rotatedPoint = test;
+        for(int j = 0; j < i; j++)
+        {
+          rotatedPoint = rotatePoint(rotatedPoint, rotationAxes[j], result[j]/180*M_PI);
+        }
         std::cout << "Changed right vector from " << startPositions[i+1];
         startPositions[i+1] = rotatedPoint + startPositions[i];
         std::cout << " to " << startPositions[i+1] << std::endl;
