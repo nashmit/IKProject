@@ -12,3 +12,14 @@ cd build
 cmake .. -DRBDL_BUILD_ADDON_LUAMODEL=ON
 make
 sudo make install
+
+
+
+meshup info ( check init_pos.png for initial configuration ) :
+
+red axes -> positive X axes
+
+green axes -> positive Y axes
+
+blue axes -> positive Z axes
+
