@@ -5,39 +5,81 @@
 #include <cmath> // for acos()
 #include <string>
 #include <array>
+#include <Eigen/Geometry>
 
 #include "point.hpp"
 #include "fabrik.hpp"
 
+using namespace Eigen;
+
+void rotatePoint()
+
 std::vector<double> convertPositionsToAngles(std::vector<Point3D> positions,
                                              std::vector<Point3D> startPositions,
-                                             int rotationAxis)
+                                             std::string rotationAxes)
 {
   std::vector<double> result (positions.size() - 1, 0.);
-  std::array<int, 2> coord;
+  std::vector<Point3D> origStartPositions = startPositions;
+  /* Calculating angles, using the law of cosines
+     Link in original position:  x--------x
 
-  switch (rotationAxis)
-  {
-    case(0): // rotation around x-axis
-      coord = {2, 1};
-      break;
-    case(1): // rotation around y-axis
-      coord = {2, 0};
-      break;
-    case(2): // rotation around z-axis
-      coord = {1, 0};
-      break;
-    default:
-      std::cout << "Invalid rotation axis (use 0 for x-axis, 1 y-axis, 2 for z-axis)" << std::endl;
-      return std::vector<double>(0);
-  }
-  // Calculating angles
+     Link in target postion (Calculated by FABRIK)
+            x
+          /
+        /
+      x
+    We move the the target link, such its edge (which is closer to the base)
+    is at the position of the egde (which is closer to the base) of the link at
+    the original position to create a triangle.
+          x   <-- newEdge
+        /  \
+      /     \
+    x--------x
+  */
   for (int i = 0; i < positions.size() - 1; i++)
   {
-    auto a = euclideanDistance(positions[i], positions[i+1]);
-    auto b = euclideanDistance(startPositions[i], startPositions[i+1]);
-    auto c = euclideanDistance(positions[i+1] + startPositions[i] + (-1) * positions[i],
-                               startPositions[i+1] );
+    if (i != 0)
+    {
+        auto test = (-1)* origStartPositions[i] + origStartPositions[i+1];
+        std::cout << "\nRotation vector " << i << std::endl;
+        std::cout << "Changed left point from " << startPositions[i];
+        startPositions[i] = positions[i];
+        std::cout << " to "<< startPositions[i] << std::endl;
+        Vector3d rotationAxis = rotationAxes[i-1] == 'X'?
+                                Vector3d(1, 0, 0) :
+                                (rotationAxes[i] == 'Y'?
+                                Vector3d(0, 1, 0) :
+                                Vector3d(0, 0, 1));
+        //Vector3d rotationAxis = Vector3d(1,0,0);
+        Matrix3d m;
+        m = AngleAxisd(result[i-1]/180*M_PI, rotationAxis);
+        Transform<double, 3, Affine> t;
+        t = m;
+
+        Vector3d vec(test.getXYZ(0),
+                     test.getXYZ(1),
+                     test.getXYZ(2));
+
+        auto vec2 = t.linear() * vec;
+
+        std::cout << "Changed right vector from " << startPositions[i+1];
+        auto rotatedPoint = Point3D(vec2[0], vec2[1], vec2[2]);
+        startPositions[i+1] = rotatedPoint + startPositions[i];
+        std::cout << " to " << startPositions[i+1] << std::endl;
+        std::cout << "Rotation from " << Point3D(vec[0], vec[1], vec[2]) << " by " << result[i-1] << " around axis "
+        << rotationAxes[i] << " gives vector" << rotatedPoint << std::endl;
+
+    }
+    /*auto newEdge = startPositions[i+1] +
+                   positions[i] + (-1) * startPositions[i];
+    auto a = euclideanDistance(positions[i], newEdge);
+    auto b = euclideanDistance(positions[i], positions[i+1]);
+    auto c = euclideanDistance(newEdge, positions[i+1] );*/
+
+    // For refactoring: a and b are the same length!
+    auto a = euclideanDistance(startPositions[i], startPositions[i+1]);
+    auto b = euclideanDistance(positions[i], positions[i+1]);
+    auto c = euclideanDistance(startPositions[i+1], positions[i+1]);
 
     std::cout << "a = " << a << ", b = " << b << ", c = " << c << std::endl;
     auto x = (pow(a, 2) + pow(b, 2) - pow(c, 2))/(2*a*b);
@@ -45,10 +87,16 @@ std::vector<double> convertPositionsToAngles(std::vector<Point3D> positions,
     std:: cout << "x = " << x << ", => angle: " << angle << std::endl;
     result[i] = angle;
   }
+  std::cout << "Original Positions:" << std::endl;
+  for(auto position : origStartPositions)
+  {
+    std::cout << position << std::endl;
+  }
   return result;
 }
 
-std::vector<double> simpleVersion(std::vector<Point3D> & positions, Point3D target, double epsilon)
+std::vector<double> simpleVersion(std::vector<Point3D> & positions,
+     Point3D target, double epsilon, std::string rotationAxes)
 {
   std::vector<Point3D> startPositions = positions;
   // get the link lenghts
@@ -109,5 +157,5 @@ std::vector<double> simpleVersion(std::vector<Point3D> & positions, Point3D targ
       std::cout << position << std::endl;
     }
   }
-  return convertPositionsToAngles(positions, startPositions, 0);
+  return convertPositionsToAngles(positions, startPositions, rotationAxes);
 }

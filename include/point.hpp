@@ -3,6 +3,7 @@
 
 #include <cmath> // for sqrt() and pow()
 #include <vector>
+#include <exception> // for std::terminate
 
 class Point3D
 {
@@ -11,7 +12,7 @@ private:
 public:
   Point3D(double _x, double _y, double _z):x(_x), y(_y), z(_z){}
 
-  double getCoordinate(int coord)
+  double getXYZ(int coord)
   {
     switch(coord)
     {
@@ -22,6 +23,7 @@ public:
       case 2:
         return z;
     }
+    std::terminate();
   }
 
   // Using default copy and move constructors and assignment operators

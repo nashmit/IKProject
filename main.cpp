@@ -1,11 +1,10 @@
-// NOTE: THIS MAIN STILL NEEDS TO BE WORKED OVER, SINCE THE
-// MODEL (models/chain.lua) HAS BEEN MODIFIED!
 #include <iostream>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <fstream>
 #include <vector>
 #include <string>
+#include <sstream>
 
 #include <rbdl/rbdl.h>
 #ifndef RBDL_BUILD_ADDON_LUAMODEL
@@ -30,6 +29,7 @@ typedef Matrix<double, 7, 1>  Vector7d;
 typedef Matrix<double, 8, 1>  Vector8d;
 
 
+
 int main(int argc, char *argv[]) {
 
 
@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
 
 	std::ofstream outfile("animation.csv");
 
+	outfile << "COLUMNS:\n";
 	// Get IDs of the links of the robot
 	std::vector<unsigned int> linkIDs;
 
@@ -52,32 +53,35 @@ int main(int argc, char *argv[]) {
 			linkIDs.push_back(value);
 		}
 	}
-	std::sort(linkIDs.begin(), linkIDs.end());
-	// For some reason, base ID isnt 0 as expected
-	linkIDs.insert(linkIDs.begin(),model.GetBodyId("Base"));
 
+	std::sort(linkIDs.begin(), linkIDs.end());
 	VectorXd q_start(linkIDs.size());
 	VectorXd q(linkIDs.size());
-	std::vector<Point3D> origins;
-	for(auto linkID : linkIDs)
-	{
-		std::cout << "Found body " << linkID << " with name: " << model.GetBodyName(linkID) << std::endl;
-		auto pos = CalcBodyToBaseCoordinates(model, q, linkID, Vector3d(0,0,0), true);
-		std::cout << "Position:\n" << pos << std::endl;
-		origins.push_back({pos[0], pos[1], pos[2]});
-	}
 	std::vector<Point3D> positions;
-	for(int i = 0; i < origins.size(); i++)
+
+	std::stringstream DOFoverview(Utils::GetModelDOFOverview(model));
+	std::string line, rotationAxes;
+	for(int i = 0; i < linkIDs.size(); i++)
 	{
-		if(i == 0)
+		auto linkID = linkIDs[i];
+		//std::cout << "Found body " << linkID << " with name: " << model.GetBodyName(linkID) << std::endl;
+		auto pos = CalcBodyToBaseCoordinates(model, q, linkID, Vector3d(0,0,0), true);
+		//std::cout << "Position:\n" << pos << std::endl;
+		positions.push_back({pos[0], pos[1], pos[2]});
+		if (i != linkIDs.size() - 1)
 		{
-			positions.push_back(origins[i]);
-			continue;
+			std::getline(DOFoverview, line);
+			rotationAxes += line.substr(line.size() - 1, 1);
+			outfile << model.GetBodyName(linkID)   << ":R:"
+							<< rotationAxes.back();
 		}
-		auto halfLength = origins[i] + (-1) * positions[i-1];
-		std::cout << origins[i-1] << origins[i] << halfLength << std::endl;
-		positions.push_back(positions[i-1] + 2*halfLength);
+		if (i < linkIDs.size() - 2)
+		{
+			outfile << ", ";
+		}
 	}
+	outfile << "\nDATA:\n";
+
 	std::cout << "Get points:" << std::endl;
 	for(auto position : positions)
 	{
@@ -86,7 +90,7 @@ int main(int argc, char *argv[]) {
 
 	// Testing fabrik
 	Point3D target = {0, 0, 3};
-	auto angles = simpleVersion(positions, target, 0.01);
+	auto angles = simpleVersion(positions, target, 0.0001, rotationAxes);
 
 	std::cout << "Angles check:" << std::endl;
 	for(auto angle : angles)
@@ -99,6 +103,7 @@ int main(int argc, char *argv[]) {
 		outfile << ", " << angles[i];
 	}
 	outfile << "\n";
+
 	// Vector to store the start
 	// The Kuka robot has 6dof, the rotating cube has 1, so 6+1=7 DOF in total
 	//Vector4d q_start;

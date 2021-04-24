@@ -33,6 +33,14 @@ meshes = {
     color = { 0.1, 1, 0.8},
     src = "meshes/unit_cube.obj",
   },
+  TCP = {
+    name = "TCP",
+    dimensions = { 0.01, 0.01, 0.01},
+    translate = {0, 0.005, 0},
+    color = { 0, 0, 0},
+    src = "meshes/unit_cube.obj",
+  },
+
 }
 
 model = {
@@ -94,6 +102,18 @@ model = {
       parent = "link3",
       joint_frame = {
         r = { 0, 0.9, 0 },
+      },
+      joint = {{0, 1, 0, 0, 0, 0} --
+      },
+      visuals = {
+        meshes.Cube,
+      },
+    },
+    {
+      name = "TCP",
+      parent = "cube",
+      joint_frame = {
+        r = { 0, 0.1, 0 },
       },
       joint = {{0, 1, 0, 0, 0, 0} --
       },
