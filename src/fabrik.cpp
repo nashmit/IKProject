@@ -12,7 +12,28 @@
 
 using namespace Eigen;
 
-void rotatePoint()
+Point3D rotatePoint(Point3D point, char axis, double angle)
+{
+  Matrix3d m;
+  Transform<double, 3, Affine> t;
+  
+  Vector3d vec(point.getXYZ(0),
+               point.getXYZ(1),
+               point.getXYZ(2));
+  Vector3d rotationAxis = axis == 'X'?
+                          Vector3d(1, 0, 0) :
+                          (axis == 'Y'?
+                          Vector3d(0, 1, 0) :
+                          Vector3d(0, 0, 1));
+
+  m = AngleAxisd(angle, rotationAxis);
+  t = m;
+  auto vec2 = t.linear() * vec;
+
+  std::cout << "Rotation from " << point << " by " << angle << " around axis "
+  << axis << " gives vector" << Point3D(vec2[0], vec2[1], vec2[2]) << std::endl;
+  return {vec2[0], vec2[1], vec2[2]};
+}
 
 std::vector<double> convertPositionsToAngles(std::vector<Point3D> positions,
                                              std::vector<Point3D> startPositions,
@@ -45,29 +66,12 @@ std::vector<double> convertPositionsToAngles(std::vector<Point3D> positions,
         std::cout << "Changed left point from " << startPositions[i];
         startPositions[i] = positions[i];
         std::cout << " to "<< startPositions[i] << std::endl;
-        Vector3d rotationAxis = rotationAxes[i-1] == 'X'?
-                                Vector3d(1, 0, 0) :
-                                (rotationAxes[i] == 'Y'?
-                                Vector3d(0, 1, 0) :
-                                Vector3d(0, 0, 1));
-        //Vector3d rotationAxis = Vector3d(1,0,0);
-        Matrix3d m;
-        m = AngleAxisd(result[i-1]/180*M_PI, rotationAxis);
-        Transform<double, 3, Affine> t;
-        t = m;
 
-        Vector3d vec(test.getXYZ(0),
-                     test.getXYZ(1),
-                     test.getXYZ(2));
-
-        auto vec2 = t.linear() * vec;
-
+        auto rotatedPoint = rotatePoint(test, rotationAxes[i-1], result[i-1]/180*M_PI);
         std::cout << "Changed right vector from " << startPositions[i+1];
-        auto rotatedPoint = Point3D(vec2[0], vec2[1], vec2[2]);
         startPositions[i+1] = rotatedPoint + startPositions[i];
         std::cout << " to " << startPositions[i+1] << std::endl;
-        std::cout << "Rotation from " << Point3D(vec[0], vec[1], vec[2]) << " by " << result[i-1] << " around axis "
-        << rotationAxes[i] << " gives vector" << rotatedPoint << std::endl;
+
 
     }
     /*auto newEdge = startPositions[i+1] +
