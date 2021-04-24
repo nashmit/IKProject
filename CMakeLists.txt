@@ -34,16 +34,22 @@ include_directories(${RBDL_INCLUDE_DIR})
 # add an executable to the project
 # usage: add_executable(EXECUTABLE_NAME CPP_FILE1 CPP_FILE2 CPP_FILE3 ...)
 add_executable(kuka_rbdl_IK_Test kuka_rbdl_IK_Test.cpp)
+add_executable(LoadAndWriteAnimation_LUA_KukaRobot_Test LoadAndWriteAnimation_LUA_KukaRobot_Test.cpp IK.h)
 add_executable(D-H-JacobianTest D-H-JacobianTest.cpp src/D_H_Jacobian.cpp src/D_H_Parameterization.cpp src/Utils.cpp src/KuKa_KR5_R850_D_H.cpp IK.h)
 
 # link libraries to your executable
 # usage: target_link_libraries(EXECUTABLE_NAME LIBRARY1 LIBRARY2 ...)
 # note : this is completely useless here, as Eigen is header-only 
 target_link_libraries(kuka_rbdl_IK_Test ${EIGEN3_LIBRARIES}
-	${RBDL_LIBRARY}
-	${RBDL_LuaModel_LIBRARY}
-	${LUA_LIBRARIES}
-	)
+		${RBDL_LIBRARY}
+		${RBDL_LuaModel_LIBRARY}
+		${LUA_LIBRARIES}
+		)
+target_link_libraries(LoadAndWriteAnimation_LUA_KukaRobot_Test ${EIGEN3_LIBRARIES}
+		${RBDL_LIBRARY}
+		${RBDL_LuaModel_LIBRARY}
+		${LUA_LIBRARIES}
+		)
 target_link_libraries(D-H-JacobianTest ${EIGEN3_LIBRARIES}
 		${RBDL_LIBRARY}
 		${RBDL_LuaModel_LIBRARY}
@@ -54,6 +60,7 @@ target_link_libraries(D-H-JacobianTest ${EIGEN3_LIBRARIES}
 configure_file(kuka+cube.lua kuka+cube.lua COPYONLY)
 #~ configure_file(kuka.obj kuka.obj COPYONLY)
 configure_file(meshes/kuka.obj meshes/kuka.obj COPYONLY)
+configure_file(kuka.lua kuka.lua COPYONLY)
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
