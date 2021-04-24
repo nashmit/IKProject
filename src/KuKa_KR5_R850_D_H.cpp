@@ -2,7 +2,7 @@
 // Created by nash_mit on 23.04.2021.
 //
 
-#include "../include/KuKa_KR5_R850_D_H.h"
+#include "../include/IKProject/KuKa_KR5_R850_D_H.h"
 
 
 D_H_Parameterization Build_KuKa_KR5_R850_Joint1() {

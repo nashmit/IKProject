@@ -5,7 +5,7 @@
 
 #include <rbdl/rbdl.h>
 
-#include "IK.h"
+#include "../include/IK.h"
 
 
 
@@ -71,14 +71,14 @@ int main()
     //HierarchyTest1.Add_D_H(Joint1);
 
 
-    /*
+
     std::cout << Joint1.GetAsHomogeniousMatrix() << std::endl;
     std::cout
-    << "Translation: "
+    << "Translation: " << std::endl
     << GetTraslationFromHomogeniousMatrix( Joint1.GetAsHomogeniousMatrix() )  <<  std::endl
     << std::endl << "Rotations " << std::endl
     << GetRotationsFromHomogeniousMatrix( Joint1.GetAsHomogeniousMatrix() ) << std::endl;
-    */
+
 
 
 

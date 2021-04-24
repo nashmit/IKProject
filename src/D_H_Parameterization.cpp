@@ -2,7 +2,7 @@
 // Created by nash_mit on 23.04.2021.
 //
 
-#include "../include/D_H_Parameterization.h"
+#include "../include/IKProject/D_H_Parameterization.h"
 
 D_H_Parameterization::Type D_H_Parameterization::GetType()
 {

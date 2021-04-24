@@ -7,7 +7,7 @@
 
 #include <rbdl/rbdl.h>
 
-#include "IK.h"
+#include "../include/IK.h"
 
 #ifndef RBDL_BUILD_ADDON_LUAMODEL
 #error "Error: RBDL addon LuaModel not enabled."
