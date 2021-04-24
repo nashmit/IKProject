@@ -2,7 +2,7 @@
 // Created by nash_mit on 23.04.2021.
 //
 
-#include "Utils.h"
+#include "../include/Utils.h"
 
 
 Vector3d GetTraslationFromHomogeniousMatrix( Matrix4x4d homogeniousMatrix )

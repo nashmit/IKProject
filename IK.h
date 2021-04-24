@@ -5,14 +5,14 @@
 #ifndef KUKA_RBDL_IK_H
 #define KUKA_RBDL_IK_H
 
-#include "config.h"
+#include "include/config.h"
 
-#include "Utils.h"
+#include "include/Utils.h"
 
-#include "D_H_Parameterization.h"
+#include "include/D_H_Parameterization.h"
 
-#include "D_H_Jacobian.h"
+#include "include/D_H_Jacobian.h"
 
-#include "KuKa_KR5_R850_D_H.h"
+#include "include/KuKa_KR5_R850_D_H.h"
 
 #endif //KUKA_RBDL_IK_H

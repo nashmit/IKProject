@@ -5,7 +5,7 @@
 #ifndef KUKA_RBDL_KUKA_KR5_R850_D_H_H
 #define KUKA_RBDL_KUKA_KR5_R850_D_H_H
 
-#include "IK.h"
+#include "../IK.h"
 
 D_H_Parameterization Build_KuKa_KR5_R850_Joint1();
 D_H_Parameterization Build_KuKa_KR5_R850_Joint2();
