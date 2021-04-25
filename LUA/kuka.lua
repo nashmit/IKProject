@@ -77,7 +77,7 @@ meshes = {
   gr2b = {
     name = "gr2b",
     color = { 0.7, 0.7, 0.7},
-translate = { -0.925-gr_offset, 0, -0.425},
+    translate = { -0.925-gr_offset, 0, -0.425},
     src = "meshes/kuka.obj:gr2b",
   },
   glass = {

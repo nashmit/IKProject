@@ -48,16 +48,12 @@ int main(int argc, char *argv[]) {
         << EE_worldSpace_position << std::endl << std::endl
         << EE_worldSpace_orientation << std::endl;
 
-    Vector3d pos = CalcBodyToBaseCoordinates(model,  q_start, A4_id,Vector3d(0,0,0),true);
-
-    //why update_kinematics doesn't have any influence???
-    //why is this different from CalcBodyToBaseCoordinates call?
-    //why is that useful at all??
-    Eigen::Matrix3d orientation = CalcBodyWorldOrientation (model,  q_start, A4_id,false);
+    Vector3d A4_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, A4_id,Vector3d(0,0,0),true);
+    Eigen::Matrix3d A4_wordSpace_orientation = CalcBodyWorldOrientation (model,  q_start, A4_id,false);
 
     InverseKinematicsConstraintSet cs;
-    cs.AddPointConstraint (EE_id,Vector3d(0,0,0), pos);
-    cs.AddOrientationConstraint  (EE_id, orientation);
+    cs.AddPointConstraint (EE_id,Vector3d(0,0,0), A4_worldSpace_position);
+    cs.AddOrientationConstraint  (EE_id, A4_wordSpace_orientation);
 
     // run Inverse Kinematic
     bool ret =  InverseKinematics(model, q_start, cs, q);
