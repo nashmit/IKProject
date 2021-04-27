@@ -12,6 +12,12 @@
 
 using namespace Eigen;
 
+/*
+ * Rotates the displacement vector from the origin (P-O) of a
+ * given point P by an angle (in radians) around a given axis
+ * (= unit vector of one of the three coordinate system axes,
+ *  specify with 'X', 'Y', or 'Z'). Uses the Eigen library.
+*/
 Point3D rotatePoint(Point3D point, char axis, double angle)
 {
   Matrix3d m;
@@ -29,80 +35,68 @@ Point3D rotatePoint(Point3D point, char axis, double angle)
   m = AngleAxisd(angle, rotationAxis);
   t = m;
   auto vec2 = t.linear() * vec;
-
-  std::cout << "Rotation from " << point << " by " << angle*180/M_PI << "° around axis "
-  << axis << " gives vector" << Point3D(vec2[0], vec2[1], vec2[2]) << std::endl;
   return {vec2[0], vec2[1], vec2[2]};
 }
 
-std::vector<double> convertPositionsToAngles(std::vector<Point3D> positions,
-                                             std::vector<Point3D> startPositions,
-                                             std::string rotationAxes)
+/*
+ * For all links, this function calculates the angles (in degrees) between link i
+ * in the initial configuration of a system (specified by a vector of points that
+ * contains the position of the start and end point of all links) and link i in
+ * the desired end position.
+ * rotationAxes is a string which specifies the rotation axes ('X', 'Y', or
+ * 'Z') for each link, e.g. XXYZ.
+ *
+*/
+std::vector<double>
+calculateAnglesGivenPositions(std::vector<Point3D> startPositions,
+                              std::vector<Point3D> endPositions,
+                              std::string rotationAxes)
 {
-  std::vector<double> result (positions.size() - 1, 0.);
-  std::vector<Point3D> origStartPositions = startPositions;
-  /* Calculating angles, using the law of cosines
-     Link in original position:  x--------x
+  std::vector<double> result (endPositions.size() - 1, 0.);
+  std::vector<Point3D> initialStartPositions = startPositions;
 
-     Link in target postion (Calculated by FABRIK)
-            x
-          /
-        /
-      x
-    We move the the target link, such its edge (which is closer to the base)
-    is at the position of the egde (which is closer to the base) of the link at
-    the original position to create a triangle.
-          x   <-- newEdge
-        /  \
-      /     \
-    x--------x
-  */
-  for (int i = 0; i < positions.size() - 1; i++)
+  for (int i = 0; i < endPositions.size() - 1; i++)
   {
+    /*
+     * In the FABRIK algorithm the links are rotated one by one (first link 0,
+     * then link 1, ...). When link i is rotated by a certain angle, all sub-
+     * sequent links i+n get rotated by that angle as well
+     * (assuming a chain robot).
+     * We simulate this in the following if-branch.
+     */
     if (i != 0)
     {
-        auto test = (-1)* origStartPositions[i] + origStartPositions[i+1];
-        std::cout << "\nRotation vector " << i << std::endl;
-        std::cout << "Changed left point from " << startPositions[i];
-        startPositions[i] = positions[i];
-        std::cout << " to "<< startPositions[i] << std::endl;
+        // Move the start point of the link to the end point of the
+        // previous link (which is already at its end position).
+        startPositions[i] = endPositions[i];
 
-        Point3D rotatedPoint = test;
+        // Apply all rotations of the previous links to link i.
+        Point3D rotatedPoint = (-1)* initialStartPositions[i] +
+                                     initialStartPositions[i+1];
         for(int j = 0; j < i; j++)
         {
-          rotatedPoint = rotatePoint(rotatedPoint, rotationAxes[j], result[j]/180*M_PI);
+          rotatedPoint = rotatePoint(rotatedPoint, rotationAxes[j],
+                                     result[j]/180*M_PI);
         }
-        std::cout << "Changed right vector from " << startPositions[i+1];
         startPositions[i+1] = rotatedPoint + startPositions[i];
-        std::cout << " to " << startPositions[i+1] << std::endl;
-
-
     }
-    /*auto newEdge = startPositions[i+1] +
-                   positions[i] + (-1) * startPositions[i];
-    auto a = euclideanDistance(positions[i], newEdge);
-    auto b = euclideanDistance(positions[i], positions[i+1]);
-    auto c = euclideanDistance(newEdge, positions[i+1] );*/
 
-    // For refactoring: a and b are the same length!
+    // Use the cosine theorem, to calculate the angle (in deg) that we have to
+    // rotate link i by in order to have it reach the end position.
     auto a = euclideanDistance(startPositions[i], startPositions[i+1]);
-    auto b = euclideanDistance(positions[i], positions[i+1]);
-    auto c = euclideanDistance(startPositions[i+1], positions[i+1]);
-
-    std::cout << "a = " << a << ", b = " << b << ", c = " << c << std::endl;
+    auto b = euclideanDistance(endPositions[i],endPositions[i+1]);
+    auto c = euclideanDistance(startPositions[i+1],endPositions[i+1]);
     auto x = (pow(a, 2) + pow(b, 2) - pow(c, 2))/(2*a*b);
     auto angle = acos(x) * 180 /M_PI;
-    std:: cout << "x = " << x << ", => angle: " << angle << std::endl;
     result[i] = angle;
-  }
-  std::cout << "Original Positions:" << std::endl;
-  for(auto position : origStartPositions)
-  {
-    std::cout << position << std::endl;
   }
   return result;
 }
 
+/*
+ * Implements the FABRIK algorithm for a single end-effector and does not apply
+ * apply any constraints for the joints.
+*/
 std::vector<double> simpleVersion(std::vector<Point3D> & positions,
      Point3D target, double epsilon, std::string rotationAxes)
 {
@@ -159,11 +153,11 @@ std::vector<double> simpleVersion(std::vector<Point3D> & positions,
         positions[i+1] = (1 - lambda) * positions[i] + lambda * positions[i+1];
       }
     }
-    std::cout << "Target within reach, result:" << std::endl;
+    std::cout << "Target is within reach!\nResult:" << std::endl;
     for (auto position: positions)
     {
       std::cout << position << std::endl;
     }
   }
-  return convertPositionsToAngles(positions, startPositions, rotationAxes);
+  return calculateAnglesGivenPositions(startPositions, positions, rotationAxes);
 }

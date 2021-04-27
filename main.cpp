@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
 	std::ofstream outfile("animation.csv");
 
-	outfile << "COLUMNS:\n";
+	outfile << "COLUMNS:\nBase:R:X, ";
 	// Get IDs of the links of the robot
 	std::vector<unsigned int> linkIDs;
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 	Point3D target = {0, 0, 3};
 	auto angles = simpleVersion(positions, target, 0.0001, rotationAxes);
 
-	std::cout << "Angles check:" << std::endl;
+	std::cout << "Angles (in °):" << std::endl;
 	for(auto angle : angles)
 	{
 		std::cout << angle << "," << std::endl;

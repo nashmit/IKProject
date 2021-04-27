@@ -118,7 +118,7 @@ model = {
       joint = {{0, 1, 0, 0, 0, 0} --
       },
       visuals = {
-        meshes.Cube,
+        meshes.TCP,
       },
     },
   }
