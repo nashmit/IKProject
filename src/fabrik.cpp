@@ -112,7 +112,7 @@ std::vector<double> simpleVersion(std::vector<Point3D> & positions,
   if (distanceRootTarget > std::accumulate(lengths.begin(), lengths.end(), 0.))
   {
     // Target is not within reach
-    std::cout << "Target is not within reach!" << std::endl;
+    std::cout << "Target " << target << " is not within reach!" << std::endl;
     for(int i = 0; i < positions.size() - 1; i++)
     {
       // Get the distance between target and joint position
@@ -153,7 +153,7 @@ std::vector<double> simpleVersion(std::vector<Point3D> & positions,
         positions[i+1] = (1 - lambda) * positions[i] + lambda * positions[i+1];
       }
     }
-    std::cout << "Target is within reach!\nResult:" << std::endl;
+    std::cout << "Target " << target << " is within reach!\nResult:" << std::endl;
     for (auto position: positions)
     {
       std::cout << position << std::endl;

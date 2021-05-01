@@ -13,6 +13,7 @@
 #include <rbdl/addons/luamodel/luamodel.h>
 
 #include <limits> // for std::numeric_limits<unsigned int>::max() (DEBUGGING)
+#include <cmath> // for sin() and cos()
 #include "point.hpp"
 #include "fabrik.hpp"
 
@@ -86,7 +87,39 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Testing fabrik algorithm
-	Point3D target = {0, 0, 3};
+	Point3D target = {0, 0, 0};
+	for(double angle = 0; angle < 2*M_PI; angle += M_PI/4)
+	{
+		if (angle <= M_PI/2)
+		{
+			target = {0, 2*cos(angle), 2*sin(angle) + 1};
+		} else if (angle > M_PI/2 && angle <=  M_PI)
+		{
+			target = {0, -2*sin(angle - M_PI/2), 2*cos(angle - M_PI/2) + 1};
+		} else if (angle > M_PI && angle <= 1.5*M_PI)
+		{
+			target = {0, -2*cos(angle - M_PI), -2*sin(angle - M_PI) + 1};
+		} else if (angle > 1.5*M_PI){
+			target = {0, 2*sin(angle - 1.5*M_PI), -2*cos(angle - 1.5*M_PI) + 1};
+		}
+
+		auto angles = simpleVersion(positions, target, 0.0001, rotationAxes);
+
+		std::cout << "Angles (in °):" << std::endl;
+		for(auto linkAngle : angles)
+		{
+			std::cout << linkAngle << "," << std::endl;
+		}
+		// write result into animation file
+		outfile << angle;
+		for(int i = 0; i < angles.size(); i++)
+		{
+			outfile << ", " << angles[i];
+		}
+		outfile << "\n";
+
+	}
+	/*Point3D target = {0, 0, 3};
 	auto angles = simpleVersion(positions, target, 0.0001, rotationAxes);
 
 	std::cout << "Angles (in °):" << std::endl;
@@ -99,7 +132,7 @@ int main(int argc, char *argv[]) {
 	{
 		outfile << ", " << angles[i];
 	}
-	outfile << "\n";
+	outfile << "\n";*/
 
 	// Vector to store the start
 	// The Kuka robot has 6dof, the rotating cube has 1, so 6+1=7 DOF in total

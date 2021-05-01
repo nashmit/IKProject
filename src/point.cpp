@@ -2,7 +2,7 @@
 
 #include "point.hpp"
 
-
+// add default constructor and subtraction!
 Point3D operator+(Point3D lhs, const Point3D& rhs)
 {
   lhs += rhs;
