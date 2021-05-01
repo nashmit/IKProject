@@ -4,6 +4,7 @@
 #include <vector>
 
 std::vector<double> simpleVersion(std::vector<Point3D> & positions,
-   Point3D target, double epsilon, std::string rotationAxes);
+   const std::vector<Point3D> & startPositions, Point3D target,
+   double epsilon, std::string rotationAxes);
 
 #endif // ROBOTICS_PRACTICAL_FABRIK_IK_HPP_

@@ -87,8 +87,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Testing fabrik algorithm
+	auto startPositions = positions;
 	Point3D target = {0, 0, 0};
-	for(double angle = 0; angle < 2*M_PI; angle += M_PI/4)
+	for(double angle = 0; angle <= M_PI; angle += 0.1)
 	{
 		if (angle <= M_PI/2)
 		{
@@ -103,7 +104,7 @@ int main(int argc, char *argv[]) {
 			target = {0, 2*sin(angle - 1.5*M_PI), -2*cos(angle - 1.5*M_PI) + 1};
 		}
 
-		auto angles = simpleVersion(positions, target, 0.0001, rotationAxes);
+		auto angles = simpleVersion(positions, startPositions, target, 0.0001, rotationAxes);
 
 		std::cout << "Angles (in °):" << std::endl;
 		for(auto linkAngle : angles)

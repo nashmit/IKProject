@@ -10,6 +10,11 @@
 #include "point.hpp"
 #include "fabrik.hpp"
 
+/*
+   BUG: Angles > 180° aren't handlend correctly (probably a logic error in the 
+   calculateAnglesGivenPositions). Not fixed yet, because max. KUKA angle
+   is 170°.
+*/
 using namespace Eigen;
 
 /*
@@ -88,6 +93,8 @@ calculateAnglesGivenPositions(std::vector<Point3D> startPositions,
     auto c = euclideanDistance(startPositions[i+1],endPositions[i+1]);
     auto x = (pow(a, 2) + pow(b, 2) - pow(c, 2))/(2*a*b);
     auto angle = acos(x) * 180 /M_PI;
+
+    if (std::isnan(angle)) angle = 0;
     result[i] = angle;
   }
   return result;
@@ -98,9 +105,10 @@ calculateAnglesGivenPositions(std::vector<Point3D> startPositions,
  * apply any constraints for the joints.
 */
 std::vector<double> simpleVersion(std::vector<Point3D> & positions,
-     Point3D target, double epsilon, std::string rotationAxes)
+    const std::vector<Point3D> & startPositions, Point3D target,
+     double epsilon, std::string rotationAxes)
 {
-  std::vector<Point3D> startPositions = positions;
+  //std::vector<Point3D> startPositions = positions;
   // get the link lenghts
   std::vector<double> lengths (positions.size() - 1, 0.);
   for(int i = 0; i < positions.size() - 1; i++)
