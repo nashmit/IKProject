@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 	// Testing fabrik algorithm
 	auto startPositions = positions;
 	Point3D target = {0, 0, 0};
-	for(double angle = 0; angle <= M_PI; angle += 0.1)
+	for(double angle = 0; angle <= 2*M_PI; angle += 0.1)
 	{
 		if (angle <= M_PI/2)
 		{

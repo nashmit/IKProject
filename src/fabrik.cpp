@@ -10,11 +10,6 @@
 #include "point.hpp"
 #include "fabrik.hpp"
 
-/*
-   BUG: Angles > 180° aren't handlend correctly (probably a logic error in the 
-   calculateAnglesGivenPositions). Not fixed yet, because max. KUKA angle
-   is 170°.
-*/
 using namespace Eigen;
 
 /*
@@ -86,16 +81,28 @@ calculateAnglesGivenPositions(std::vector<Point3D> startPositions,
         startPositions[i+1] = rotatedPoint + startPositions[i];
     }
 
-    // Use the cosine theorem, to calculate the angle (in deg) that we have to
-    // rotate link i by in order to have it reach the end position.
-    auto a = euclideanDistance(startPositions[i], startPositions[i+1]);
-    auto b = euclideanDistance(endPositions[i],endPositions[i+1]);
-    auto c = euclideanDistance(startPositions[i+1],endPositions[i+1]);
-    auto x = (pow(a, 2) + pow(b, 2) - pow(c, 2))/(2*a*b);
-    auto angle = acos(x) * 180 /M_PI;
-
+    // Using dot product (instead of cosine theorem), because we need to take into
+    // account the sign of the rotation (otherwise angles >= 180 won't work, since
+    // angles in a triangle cannot be bigger than 180°).
+    // Idea taken from here:
+    // https://stackoverflow.com/questions/5188561/signed-angle-between-two-3d-vectors-with-same-origin-within-the-same-plane
+    Vector3d normalOfRotationPlane = rotationAxes[i] == 'X'?
+                            Vector3d(1, 0, 0) :
+                            (rotationAxes[i] == 'Y'?
+                            Vector3d(0, 1, 0) :
+                            Vector3d(0, 0, 1));
+    auto start = startPositions[i+1] - startPositions[i];
+    auto end   = endPositions[i+1]   - endPositions[i];
+    Vector3d startVector(start.getXYZ(0), start.getXYZ(1), start.getXYZ(2));
+    Vector3d endVector(end.getXYZ(0), end.getXYZ(1), end.getXYZ(2));
+    double angle  = acos(startVector.normalized().dot(endVector.normalized()));
+    auto crossProduct = startVector.cross(endVector);
+    if (normalOfRotationPlane.dot(crossProduct) < 0)
+    {
+      angle = -angle;
+    }
     if (std::isnan(angle)) angle = 0;
-    result[i] = angle;
+    result[i] = angle * 180/M_PI;
   }
   return result;
 }

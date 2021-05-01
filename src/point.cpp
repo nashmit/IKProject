@@ -9,6 +9,11 @@ Point3D operator+(Point3D lhs, const Point3D& rhs)
   return lhs;
 }
 
+Point3D operator-(Point3D lhs, const Point3D& rhs)
+{
+  return lhs + (-1)*rhs;
+}
+
 Point3D operator*(Point3D lhs, double rhs)
 {
   return {lhs.x*rhs, lhs.y*rhs, lhs.z*rhs};

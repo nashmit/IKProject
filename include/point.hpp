@@ -40,6 +40,7 @@ public:
     return *this;
   }
   friend Point3D operator+(Point3D lhs, const Point3D& rhs);
+  friend Point3D operator-(Point3D lhs, const Point3D& rhs);
   friend Point3D operator*(Point3D lhs, double rhs);
   friend Point3D operator*(double lhs, Point3D);
   friend std::ostream& operator<<(std::ostream& os, const Point3D & point);
