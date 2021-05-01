@@ -28,8 +28,6 @@ typedef Matrix<double, 6, 1>  Vector6d;
 typedef Matrix<double, 7, 1>  Vector7d;
 typedef Matrix<double, 8, 1>  Vector8d;
 
-
-
 int main(int argc, char *argv[]) {
 
 
@@ -38,11 +36,10 @@ int main(int argc, char *argv[]) {
 		std::cerr << "Error loading lua file" << std::endl;
 		abort();
 	}
-
-
+	// Create animation file (COLUMNS header + the actual animation data)
 	std::ofstream outfile("animation.csv");
 
-	outfile << "COLUMNS:\nBase:R:X, ";
+	outfile << "COLUMNS:\nTime, ";
 	// Get IDs of the links of the robot
 	std::vector<unsigned int> linkIDs;
 
@@ -88,7 +85,7 @@ int main(int argc, char *argv[]) {
 		std::cout << "Position:" << position << std::endl;
 	}
 
-	// Testing fabrik
+	// Testing fabrik algorithm
 	Point3D target = {0, 0, 3};
 	auto angles = simpleVersion(positions, target, 0.0001, rotationAxes);
 
