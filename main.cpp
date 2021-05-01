@@ -40,10 +40,10 @@ int main(int argc, char *argv[]) {
 	// Create animation file (COLUMNS header + the actual animation data)
 	std::ofstream outfile("animation.csv");
 
+	// Create the COLUMNS header for the animation file
 	outfile << "COLUMNS:\nTime, ";
 	// Get IDs of the links of the robot
 	std::vector<unsigned int> linkIDs;
-
 	for(auto const& [key, value]: model.mBodyNameMap)
 	{
 		if (key != "Base" &&key != "ROOT")
@@ -51,8 +51,11 @@ int main(int argc, char *argv[]) {
 			linkIDs.push_back(value);
 		}
 	}
-
+	// Sort them (based on hierarchy)
 	std::sort(linkIDs.begin(), linkIDs.end());
+
+	// Store the initial positions of the joints as declared in the lua file,
+	// as well as their degrees of freedom
 	VectorXd q_start(linkIDs.size());
 	VectorXd q(linkIDs.size());
 	std::vector<Point3D> positions;
@@ -62,9 +65,7 @@ int main(int argc, char *argv[]) {
 	for(int i = 0; i < linkIDs.size(); i++)
 	{
 		auto linkID = linkIDs[i];
-		//std::cout << "Found body " << linkID << " with name: " << model.GetBodyName(linkID) << std::endl;
 		auto pos = CalcBodyToBaseCoordinates(model, q, linkID, Vector3d(0,0,0), true);
-		//std::cout << "Position:\n" << pos << std::endl;
 		positions.push_back({pos[0], pos[1], pos[2]});
 		if (i != linkIDs.size() - 1)
 		{
@@ -78,6 +79,8 @@ int main(int argc, char *argv[]) {
 			outfile << ", ";
 		}
 	}
+
+	// Create the DATA columns that describe the movement of the robot
 	outfile << "\nDATA:\n";
 
 	std::cout << "Get points:" << std::endl;
@@ -86,22 +89,23 @@ int main(int argc, char *argv[]) {
 		std::cout << "Position:" << position << std::endl;
 	}
 
-	// Testing fabrik algorithm
+	// Get joint angles using the FABRIK algorithm
 	auto startPositions = positions;
-	Point3D target = {0, 0, 0};
-	for(double angle = 0; angle <= 2*M_PI; angle += 0.1)
+	Point3D target;
+	double radius = 2;
+	for(double angle = 0; angle <= 2*M_PI; angle += M_PI/20)
 	{
 		if (angle <= M_PI/2)
 		{
-			target = {0, 2*cos(angle), 2*sin(angle) + 1};
+			target = {0, radius*cos(angle), radius*sin(angle) + 1};
 		} else if (angle > M_PI/2 && angle <=  M_PI)
 		{
-			target = {0, -2*sin(angle - M_PI/2), 2*cos(angle - M_PI/2) + 1};
+			target = {0, -radius*sin(angle - M_PI/2), radius*cos(angle - M_PI/2) + 1};
 		} else if (angle > M_PI && angle <= 1.5*M_PI)
 		{
-			target = {0, -2*cos(angle - M_PI), -2*sin(angle - M_PI) + 1};
+			target = {0, -radius*cos(angle - M_PI), -radius*sin(angle - M_PI) + 1};
 		} else if (angle > 1.5*M_PI){
-			target = {0, 2*sin(angle - 1.5*M_PI), -2*cos(angle - 1.5*M_PI) + 1};
+			target = {0, radius*sin(angle - 1.5*M_PI), -radius*cos(angle - 1.5*M_PI) + 1};
 		}
 
 		auto angles = simpleVersion(positions, startPositions, target, 0.0001, rotationAxes);
@@ -120,66 +124,6 @@ int main(int argc, char *argv[]) {
 		outfile << "\n";
 
 	}
-	/*Point3D target = {0, 0, 3};
-	auto angles = simpleVersion(positions, target, 0.0001, rotationAxes);
-
-	std::cout << "Angles (in °):" << std::endl;
-	for(auto angle : angles)
-	{
-		std::cout << angle << "," << std::endl;
-	}
-	outfile << 1;
-	for(int i = 0; i < angles.size(); i++)
-	{
-		outfile << ", " << angles[i];
-	}
-	outfile << "\n";*/
-
-	// Vector to store the start
-	// The Kuka robot has 6dof, the rotating cube has 1, so 6+1=7 DOF in total
-	//Vector4d q_start;
-
-	//q_start << 0., 0., 0., 0.;
-
-	/*const double tMax = 4;
-
-	for (double t = 0; t < tMax; t +=0.1) {
-		// Rotating angle for the cube
-		double alpha = (t-tMax/2)/tMax * 2*M_PI;
-
-
-		// Run forward kinematics to obtain the cube's position and orientation depending on alpha
-		VectorXd q(4);
-		q[3]=alpha;
-
-		Vector3d pos = CalcBodyToBaseCoordinates(model,  q, cube_id,Vector3d(0,0,0),true);
-		Eigen::Matrix3d ori = CalcBodyWorldOrientation (model,  q, cube_id,false);
-		*/
-
-		// Set up the inverse Kinematic constraint set for the kuka model
-
-		/*InverseKinematicsConstraintSet cs;
-		cs.AddPointConstraint (tcp_id,Vector3d(0,0,0), pos);
-		cs.AddOrientationConstraint  (tcp_id, ori);
-		*/
-
-		// run Inverse Kinematic
-        //bool ret =  InverseKinematics(model, q_start, cs, q);
-
-		/*if (!ret) {
-			std::cout << "InverseKinematics did not find a solution" << std::endl;
-		}
-
-
-		// Write result to file
-        outfile << t << ", " << q[0] << ", " << q[1] << ", " << q[2] << ", " << q[3] << ", " << q[4] << ", " << q[5] << ", " << alpha << "\n";
-
-
-		// Set start angles to current result
-		q_start = q;
-
-	}*/
-
 	outfile.close();
 
 	return 0;
