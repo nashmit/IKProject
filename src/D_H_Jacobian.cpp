@@ -134,7 +134,7 @@ double HierarchyOfDHParameterization::DerivativeOf_Phi_Direction_wrt_Q_i_DOF(int
 Matrix4x4d HierarchyOfDHParameterization::MatrixProductInterval(int from, int to)
 {
     if (to < from)
-        return Matrix4x4d::Ones();
+        return Matrix4x4d::Identity();
 
     Matrix4x4d result = Matrix4x4d::Identity();
 
