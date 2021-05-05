@@ -32,3 +32,17 @@ Vector3d GetRotationsFromHomogeniousMatrix( Matrix4x4d homogeniousMatrix )
 
     return Rotations;
 }
+
+Matrix4x4d ExtractRotationMatrix( Matrix4x4d homogeniousMatrix )
+{
+    Matrix4x4d RotationsMatrix;
+    RotationsMatrix <<
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0 ,0, 0,
+    0, 0, 0, 1;
+
+    RotationsMatrix.block<3,3>(0,0) = homogeniousMatrix.block<3,3>(0,0);
+
+    return RotationsMatrix;
+}

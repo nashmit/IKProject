@@ -11,7 +11,7 @@ class D_H_Parameterization
 {
 
 public:
-    enum class Type { Prismatic, Revolute };
+    enum class Type { NO_DOF, Prismatic, Revolute };
 
 protected:
 

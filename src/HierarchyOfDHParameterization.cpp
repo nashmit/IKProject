@@ -1,7 +1,7 @@
 //
 //
 
-#include "../include/IKProject/D_H_Jacobian.h"
+#include "../include/IKProject/HierarchyOfDHParameterization.h"
 
 
 HierarchyOfDHParameterization& HierarchyOfDHParameterization::Add_D_H(D_H_Parameterization& D_H)
@@ -10,19 +10,46 @@ HierarchyOfDHParameterization& HierarchyOfDHParameterization::Add_D_H(D_H_Parame
     return *this;
 }
 
-int HierarchyOfDHParameterization::GetSize() { return D_Hs.size(); }
+int HierarchyOfDHParameterization::GetHierarchyLength()
+{
+    return D_Hs.size();
+}
 
-//Q_i starts from 1 and ends with n == GetSize()
+bool HierarchyOfDHParameterization::IsDOF_AtIndex(int index)
+{
+    assert( index >= 0 && index < GetHierarchyLength() );
+
+    if ( D_Hs[ index ].GetType() != D_H_Parameterization::Type::NO_DOF )
+        return true;
+
+    return false;
+}
+
+int HierarchyOfDHParameterization::GetNumberDOF()
+{
+    int numberDOF = 0;
+
+    for( unsigned int i = 0; i < D_Hs.size(); i++ ) {
+        if( IsDOF_AtIndex( i ) )
+            numberDOF++;
+    }
+
+    return numberDOF;
+}
+
+
+//Q_i is the Joint index of some DOF in Hierarchy
 double HierarchyOfDHParameterization::DerivativeOf_F_At_J_and_K_position_wrt_Q_i_DOF(int J, int K, int Q_i)
 {
     double result =
-            MatrixProductInterval( 0, Q_i - 1 - 1 ).row( J ) *
-            D_Hs[ Q_i - 1 ].GetDerivativeAtCurrentDHValueAsMatrix() *
-            MatrixProductInterval( Q_i, GetSize() - 1 ).col( K );
+            MatrixProductInterval( 0, Q_i - 1 ).row( J ) *
+            D_Hs[ Q_i ].GetDerivativeAtCurrentDHValueAsMatrix() *
+            MatrixProductInterval( Q_i + 1, GetHierarchyLength() - 1 ).col(K );
 
     return result;
 }
 
+//Q_i is the Joint index of some DOF in Hierarchy
 double HierarchyOfDHParameterization::DerivativeOf_X_Direction_wrt_Q_i_DOF(int Q_i)
 {
     double result =
@@ -31,6 +58,7 @@ double HierarchyOfDHParameterization::DerivativeOf_X_Direction_wrt_Q_i_DOF(int Q
     return result;
 }
 
+//Q_i is the Joint index of some DOF in Hierarchy
 double HierarchyOfDHParameterization::DerivativeOf_Y_Direction_wrt_Q_i_DOF(int Q_i)
 {
     double result =
@@ -39,6 +67,7 @@ double HierarchyOfDHParameterization::DerivativeOf_Y_Direction_wrt_Q_i_DOF(int Q
     return result;
 }
 
+//Q_i is the Joint index of some DOF in Hierarchy
 double HierarchyOfDHParameterization::DerivativeOf_Z_Direction_wrt_Q_i_DOF(int Q_i)
 {
     double result =
@@ -47,6 +76,7 @@ double HierarchyOfDHParameterization::DerivativeOf_Z_Direction_wrt_Q_i_DOF(int Q
     return result;
 }
 
+//Q_i is the Joint index of some DOF in Hierarchy
 double HierarchyOfDHParameterization::DerivativeOf_Psi_Direction_wrt_Q_i_DOF(int Q_i)
 {
     double result;
@@ -56,7 +86,7 @@ double HierarchyOfDHParameterization::DerivativeOf_Psi_Direction_wrt_Q_i_DOF(int
 
     if (D_Hs[Q_i].GetType() == D_H_Parameterization::Type::Revolute)
     {
-        Matrix4x4d product = MatrixProductInterval(0, GetSize() - 1);
+        Matrix4x4d product = MatrixProductInterval(0, GetHierarchyLength() - 1);
 
         double F_32 = product(3 - 1, 2 - 1);
         double F_33 = product(3 - 1, 3 - 1);
@@ -70,6 +100,7 @@ double HierarchyOfDHParameterization::DerivativeOf_Psi_Direction_wrt_Q_i_DOF(int
     return result;
 }
 
+//Q_i is the Joint index of some DOF in Hierarchy
 double HierarchyOfDHParameterization::DerivativeOf_Theta_Direction_wrt_Q_i_DOF(int Q_i)
 {
     double result;
@@ -79,7 +110,7 @@ double HierarchyOfDHParameterization::DerivativeOf_Theta_Direction_wrt_Q_i_DOF(i
 
     if (D_Hs[Q_i].GetType() == D_H_Parameterization::Type::Revolute)
     {
-        Matrix4x4d product = MatrixProductInterval(0, GetSize() - 1);
+        Matrix4x4d product = MatrixProductInterval(0, GetHierarchyLength() - 1);
 
         double F_32 = product(3 - 1, 2 - 1);
         double F_33 = product(3 - 1, 3 - 1);
@@ -105,7 +136,7 @@ double HierarchyOfDHParameterization::DerivativeOf_Theta_Direction_wrt_Q_i_DOF(i
     return result;
 }
 
-
+//Q_i is the Joint index of some DOF in Hierarchy
 double HierarchyOfDHParameterization::DerivativeOf_Phi_Direction_wrt_Q_i_DOF(int Q_i)
 {
     double result;
@@ -115,7 +146,7 @@ double HierarchyOfDHParameterization::DerivativeOf_Phi_Direction_wrt_Q_i_DOF(int
 
     if (D_Hs[Q_i].GetType() == D_H_Parameterization::Type::Revolute)
     {
-        Matrix4x4d product = MatrixProductInterval(0, GetSize() - 1);
+        Matrix4x4d product = MatrixProductInterval(0, GetHierarchyLength() - 1);
 
         double F_21 = product(2 - 1, 1 - 1);
         double F_11 = product(1 - 1, 1 - 1);
@@ -146,50 +177,85 @@ Matrix4x4d HierarchyOfDHParameterization::MatrixProductInterval(int from, int to
 
 MatrixXd HierarchyOfDHParameterization::GetJacobian()
 {
-    MatrixXd Jacobian(6,GetSize() );
+    MatrixXd Jacobian(6, GetNumberDOF() );
 
-    for (int i = 1; i <= GetSize(); i++)
+    for (int i = 1; i <= GetNumberDOF(); i++)
     {
-        Jacobian(0, i-1 ) = DerivativeOf_X_Direction_wrt_Q_i_DOF(i);
-        Jacobian(1, i-1 ) = DerivativeOf_Y_Direction_wrt_Q_i_DOF(i);
-        Jacobian(2, i-1 ) = DerivativeOf_Z_Direction_wrt_Q_i_DOF(i);
+        int JointIndexForJointNumber = GetJointIndexInHierarchyForJointNumber(i);
 
-        Jacobian(3, i-1 ) = DerivativeOf_Psi_Direction_wrt_Q_i_DOF(i);
-        Jacobian(4, i-1 ) = DerivativeOf_Theta_Direction_wrt_Q_i_DOF(i);
-        Jacobian(5, i-1 ) = DerivativeOf_Phi_Direction_wrt_Q_i_DOF(i);
+        Jacobian(0, i - 1 ) = DerivativeOf_X_Direction_wrt_Q_i_DOF( JointIndexForJointNumber );
+        Jacobian(1, i - 1 ) = DerivativeOf_Y_Direction_wrt_Q_i_DOF( JointIndexForJointNumber );
+        Jacobian(2, i - 1 ) = DerivativeOf_Z_Direction_wrt_Q_i_DOF( JointIndexForJointNumber );
+
+        Jacobian(3, i - 1 ) = DerivativeOf_Psi_Direction_wrt_Q_i_DOF( JointIndexForJointNumber );
+        Jacobian(4, i - 1 ) = DerivativeOf_Theta_Direction_wrt_Q_i_DOF( JointIndexForJointNumber );
+        Jacobian(5, i - 1 ) = DerivativeOf_Phi_Direction_wrt_Q_i_DOF( JointIndexForJointNumber );
+
     }
 
     return Jacobian;
 }
 
-double HierarchyOfDHParameterization::GetQforJoint(int JointNumber)
+//JointNumber starts from 1
+int HierarchyOfDHParameterization::GetJointIndexInHierarchyForJointNumber(int JointNumber)
 {
-    assert( JointNumber >= 1 && JointNumber <= GetSize() );
+    assert( JointNumber >= 1 && JointNumber <= GetNumberDOF() );
 
-    return D_Hs[ JointNumber - 1 ].GetDOF();
+    int currentJoint = 0;
+
+    for(int i = 0; i < GetHierarchyLength(); i++)
+    {
+        if( IsDOF_AtIndex( i ) )
+            currentJoint++;
+
+        if( currentJoint == JointNumber )
+            return i;
+    }
+
+    assert(!"JointNumber to big!");
 }
 
+// joint number starts with 1
+double HierarchyOfDHParameterization::GetQforJoint(int JointNumber)
+{
+    assert( JointNumber >= 1 && JointNumber <= GetNumberDOF() );
+
+    return D_Hs[ GetJointIndexInHierarchyForJointNumber( JointNumber ) ].GetDOF();
+}
+
+// joint number starts with 1
 void HierarchyOfDHParameterization::SetQforJoint( int  JointNumber, double value )
 {
-    assert( JointNumber >= 1 && JointNumber <= GetSize() );
+    assert( JointNumber >= 1 && JointNumber <= GetNumberDOF() );
 
-    D_Hs[ JointNumber - 1 ].SetDOF( value );
+    D_Hs[ GetJointIndexInHierarchyForJointNumber( JointNumber ) ].SetDOF( value );
+}
+
+void HierarchyOfDHParameterization::PrintJointsType()
+{
+    std::cout << "\n-----\nPrint current Joints Type: \n";
+
+    for(int i = 0; i < GetHierarchyLength(); i++)
+        std::cout <<(int)D_Hs[i].GetType() << " ";
+    std::cout << "\n-----" << std::endl;
 }
 
 VectorXd HierarchyOfDHParameterization::GetQ()
 {
-    VectorXd Q( GetSize() );
+    VectorXd Q(GetNumberDOF() );
 
-    for(int i = 0; i < GetSize(); i++)
-        Q[i] = D_Hs[i].GetDOF();
+    // joint number starts with 1
+    for(int i = 0; i < GetNumberDOF(); i++)
+        Q[ i ] = D_Hs[ GetJointIndexInHierarchyForJointNumber(i + 1 ) ].GetDOF();
 
     return Q;
 }
 
 void HierarchyOfDHParameterization::SetQ( VectorXd Q )
 {
-    assert( Q.size() == GetSize() );
+    assert( Q.size() == GetNumberDOF() );
 
-    for(int i = 0; i< GetSize(); i++)
-        D_Hs[i].SetDOF( Q[ i ] );
+    // joint number starts with 1
+    for(int i = 0; i < GetNumberDOF(); i++)
+        D_Hs[ GetJointIndexInHierarchyForJointNumber(i + 1 ) ].SetDOF(Q[ i ] );
 }

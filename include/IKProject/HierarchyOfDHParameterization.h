@@ -45,9 +45,15 @@ public:
 
     HierarchyOfDHParameterization& Add_D_H(D_H_Parameterization& D_H);
 
-    int GetSize();
+    int GetHierarchyLength();
+    int GetNumberDOF();
 
-    //Q_i starts from 1 and ends with n == GetSize()
+    //JointNumber starts from 1
+    int GetJointIndexInHierarchyForJointNumber(int JointNumber);
+
+    bool IsDOF_AtIndex(int index);
+
+    //Q_i starts from 1 and ends with n == GetHierarchyLength()
     double DerivativeOf_F_At_J_and_K_position_wrt_Q_i_DOF(int J, int K, int Q_i);
 
     double DerivativeOf_X_Direction_wrt_Q_i_DOF(int Q_i);
@@ -69,6 +75,8 @@ public:
     // get value of DOF for Joint JointNumber
     double GetQforJoint( int JointNumber );
     void SetQforJoint( int  JointNumber, double value );
+
+    void PrintJointsType();
 
     VectorXd GetQ();
     void SetQ( VectorXd Q );

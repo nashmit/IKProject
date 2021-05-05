@@ -7,15 +7,43 @@
 
 #include "../IK.h"
 
-D_H_Parameterization Build_KuKa_KR5_R850_Joint1();
-D_H_Parameterization Build_KuKa_KR5_R850_Joint2();
-D_H_Parameterization Build_KuKa_KR5_R850_Joint3();
-D_H_Parameterization Build_KuKa_KR5_R850_Joint4();
-D_H_Parameterization Build_KuKa_KR5_R850_Joint5();
-D_H_Parameterization Build_KuKa_KR5_R850_Joint6();
+class KuKa_KR5_R850_D_H{
 
-HierarchyOfDHParameterization Build_KuKa_KR5_R850_D_H();
+protected:
 
+    HierarchyOfDHParameterization Hierarchy;
+
+    HierarchyOfDHParameterization Build_KuKa_KR5_R850_D_H();
+
+public:
+
+    D_H_Parameterization Build_KuKa_KR5_R850_JointAuxiliary1();
+
+    D_H_Parameterization Build_KuKa_KR5_R850_Joint1();
+    D_H_Parameterization Build_KuKa_KR5_R850_Joint2();
+    D_H_Parameterization Build_KuKa_KR5_R850_Joint3();
+    D_H_Parameterization Build_KuKa_KR5_R850_Joint4();
+
+    D_H_Parameterization Build_KuKa_KR5_R850_JointAuxiliary2();
+
+    D_H_Parameterization Build_KuKa_KR5_R850_Joint5();
+    D_H_Parameterization Build_KuKa_KR5_R850_Joint6();
+
+    D_H_Parameterization Build_KuKa_KR5_R850_JointAuxiliary3();
+
+
+    KuKa_KR5_R850_D_H();
+
+    Matrix4x4d GetHierarchyTransformationMatrix();
+    HierarchyOfDHParameterization GetHierarchy();
+
+    void SetQ( Vector6d Q_states );
+    Vector6d GetQ();
+
+    void SetQforJoint( int  JointNumber, double value );
+    double GetQforJoint( int JointNumber );
+
+};
 
 
 #endif //KUKA_RBDL_KUKA_KR5_R850_D_H_H

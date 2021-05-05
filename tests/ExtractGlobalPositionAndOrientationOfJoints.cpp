@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 
 
     Model model;
-    if (!Addons::LuaModelReadFromFile ("kuka.lua", &model, false)) {
+    if (!Addons::LuaModelReadFromFile ("LUA/kuka.lua", &model, false)) {
         std::cerr << "Error loading lua file" << std::endl;
         abort();
     }
@@ -44,7 +44,8 @@ int main(int argc, char *argv[]) {
     int A3_id = model.GetBodyId("A3");
     int A4_id = model.GetBodyId("A4");
     int A5_id = model.GetBodyId("A5");
-    int EE_id = model.GetBodyId("A6");
+    int A6_id = model.GetBodyId("A6");
+    //int EE_id = model.GetBodyId("TCP");
 
     Vector3d Base_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, Base_id,Vector3d(0,0,0),true);
     Eigen::Matrix3d Base_wordSpace_orientation = CalcBodyWorldOrientation (model,  q_start, Base_id,true);
@@ -64,8 +65,12 @@ int main(int argc, char *argv[]) {
     Vector3d A5_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, A5_id,Vector3d(0,0,0),true);
     Eigen::Matrix3d A5_wordSpace_orientation = CalcBodyWorldOrientation (model,  q_start, A5_id,true);
 
-    Vector3d EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, EE_id,Vector3d(0,0,0),true);
-    Eigen::Matrix3d EE_worldSpace_orientation = CalcBodyWorldOrientation (model,  q_start, EE_id,true);
+    Vector3d A6_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, A6_id,Vector3d(0,0,0),true);
+    Eigen::Matrix3d A6_worldSpace_orientation = CalcBodyWorldOrientation (model,  q_start, A6_id,true);
+
+    //Vector3d EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, EE_id,Vector3d(0,0,0),true);
+    //Eigen::Matrix3d EE_worldSpace_orientation = CalcBodyWorldOrientation (model,  q_start, EE_id,true);
+
 
 
     std::cout
@@ -87,9 +92,12 @@ int main(int argc, char *argv[]) {
         << "A5: [ Position(x,y,z) and orientation(3x3 rotation matrix) in world space ]\n"
         << A5_worldSpace_position << std::endl << std::endl
         << A5_wordSpace_orientation << std::endl << std::endl
-        << "A6 ( End effector ): [ Position(x,y,z) and orientation(3x3 rotation matrix) in world space ]\n"
-        << EE_worldSpace_position << std::endl << std::endl
-        << EE_worldSpace_orientation << std::endl << std::endl;
+        << "A6: [ Position(x,y,z) and orientation(3x3 rotation matrix) in world space ]\n"
+        << A6_worldSpace_position << std::endl << std::endl
+        << A6_worldSpace_orientation << std::endl << std::endl
+        << "EE ( End Effector ): [ Position(x,y,z) and orientation(3x3 rotation matrix) in world space ]\n";
+//        << EE_worldSpace_position << std::endl << std::endl
+//        << EE_worldSpace_orientation << std::endl << std::endl;
 
 
     return 0;

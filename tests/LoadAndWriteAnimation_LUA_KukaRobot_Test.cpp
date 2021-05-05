@@ -9,12 +9,6 @@
 
 #include "../include/IK.h"
 
-#ifndef RBDL_BUILD_ADDON_LUAMODEL
-#error "Error: RBDL addon LuaModel not enabled."
-#endif
-#include <rbdl/addons/luamodel/luamodel.h>
-
-
 int main(int argc, char *argv[]) {
 
 

@@ -33,16 +33,34 @@ include_directories(${RBDL_INCLUDE_DIR})
 
 # add an executable to the project
 # usage: add_executable(EXECUTABLE_NAME CPP_FILE1 CPP_FILE2 CPP_FILE3 ...)
-add_executable(D-H-Test tests/D-H-Test.cpp src/D_H_Jacobian.cpp src/D_H_Parameterization.cpp src/Utils.cpp src/KuKa_KR5_R850_D_H.cpp include/IK.h)
+add_executable(D-H-Test tests/D-H-Test.cpp src/HierarchyOfDHParameterization.cpp src/D_H_Parameterization.cpp src/Utils.cpp src/KuKa_KR5_R850_D_H.cpp src/Trihedral.cpp include/IK.h)
 add_executable(ExtractGlobalPositionAndOrientationOfJoints tests/ExtractGlobalPositionAndOrientationOfJoints.cpp include/IK.h)
 add_executable(kuka_rbdl_IK_Test tests/kuka_rbdl_IK_Test.cpp)
 add_executable(LoadAndWriteAnimation_LUA_KukaRobot_Test tests/LoadAndWriteAnimation_LUA_KukaRobot_Test.cpp include/IK.h)
-add_executable(D-H-JacobianTest tests/D-H-JacobianTest.cpp src/D_H_Jacobian.cpp src/D_H_Parameterization.cpp src/Utils.cpp src/KuKa_KR5_R850_D_H.cpp include/IK.h)
+add_executable(D-H-JacobianTest tests/D-H-JacobianTest.cpp src/HierarchyOfDHParameterization.cpp src/D_H_Parameterization.cpp src/Utils.cpp src/KuKa_KR5_R850_D_H.cpp include/IK.h)
+add_executable(Build_KuKa_KR5_R850_D_H-Test tests/Build_KuKa_KR5_R850_D_H-Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
+add_executable(D-H-DOF_Change-Test tests/D-H-DOF_Change-Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
+add_executable(Trihedral_Orientation_In_Each_Frame_Test tests/Trihedral_Orientation_In_Each_Frame_Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
 
 # link libraries to your executable
 # usage: target_link_libraries(EXECUTABLE_NAME LIBRARY1 LIBRARY2 ...)
 # note : this is completely useless here, as Eigen is header-only
 target_link_libraries(D-H-Test ${EIGEN3_LIBRARIES}
+		${RBDL_LIBRARY}
+		${RBDL_LuaModel_LIBRARY}
+		${LUA_LIBRARIES}
+		)
+target_link_libraries(Trihedral_Orientation_In_Each_Frame_Test ${EIGEN3_LIBRARIES}
+		${RBDL_LIBRARY}
+		${RBDL_LuaModel_LIBRARY}
+		${LUA_LIBRARIES}
+		)
+target_link_libraries(D-H-DOF_Change-Test ${EIGEN3_LIBRARIES}
+		${RBDL_LIBRARY}
+		${RBDL_LuaModel_LIBRARY}
+		${LUA_LIBRARIES}
+		)
+target_link_libraries(Build_KuKa_KR5_R850_D_H-Test ${EIGEN3_LIBRARIES}
 		${RBDL_LIBRARY}
 		${RBDL_LuaModel_LIBRARY}
 		${LUA_LIBRARIES}

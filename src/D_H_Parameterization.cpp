@@ -50,16 +50,22 @@ Matrix4x4d D_H_Parameterization::GetAsHomogeniousMatrix()
 
 void D_H_Parameterization::SetDOF(double DeltaParameter)
 {
+    assert( GetType() != Type::NO_DOF );
+
     DOF_Value = DeltaParameter;
 }
 
 double D_H_Parameterization::GetDOF()
 {
+    assert( GetType() != Type::NO_DOF );
+
     return DOF_Value;
 }
 
 Matrix4x4d D_H_Parameterization::GetDerivativeAtCurrentDHValueAsMatrix()
 {
+    assert( GetType() != Type::NO_DOF );
+
     Matrix4x4d result;
 
     if (type == Type::Prismatic)

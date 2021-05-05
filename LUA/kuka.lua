@@ -208,48 +208,47 @@ model = {
 		meshes.B6,
 	},
   },
+      --[[
+        {
+          joint_frame = {
+              r = { gr_offset, 0. , 0.0},
+          },
+                name = "TCP",
+                parent = "A6",
+                visuals = {
+                  meshes.gr0,
+                  meshes.gr1,
+                  meshes.gr2,
+                  meshes.gr1b,
+                  meshes.gr2b,
+                },
+        },
 
---[[
-  {
-	joint_frame = {
-		r = { gr_offset, 0. , 0.0},    
-	},
-      	name = "TCP",
-      	parent = "A6",
-      	visuals = {
-        	meshes.gr0,
-        	meshes.gr1,
-        	meshes.gr2,
-        	meshes.gr1b,
-        	meshes.gr2b,
-      	},
-  },  
- 
-  {
-	name = "l2",
-	parent = "ROOT",
-	joint_frame =  { 
-		r={ 0.0, 0.0, 0.4 } 
-	},
-	joint = { 
-		{ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0} 
-	},
-  },
+        {
+          name = "l2",
+          parent = "ROOT",
+          joint_frame =  {
+              r={ 0.0, 0.0, 0.4 }
+          },
+          joint = {
+              { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+          },
+        },
 
-  {
-	name = "l3",
-	parent = "l2",
-	joint_frame =  { 
-		r={ .6, 0.0, 0.28 } 
-	},
-  },
+        {
+          name = "l3",
+          parent = "l2",
+          joint_frame =  {
+              r={ .6, 0.0, 0.28 }
+          },
+        },
 
-  {
-	name = "cube",
-	parent = "l3",
-	visuals = { meshes.cube,},
-  },
---]]
+        {
+          name = "cube",
+          parent = "l3",
+          visuals = { meshes.cube,},
+        },
+      --]]
 
   } --~ end frames
 
