@@ -13,6 +13,8 @@
 #endif
 #include <rbdl/addons/luamodel/luamodel.h>
 
+#include <rbdl/Kinematics.h>
+
 
 #include "IKProject/Utils.h"
 
