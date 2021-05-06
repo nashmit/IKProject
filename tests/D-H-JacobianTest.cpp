@@ -12,7 +12,10 @@ int main()
 
     //Matrix4x4d HomogeniousMatrix = Hierarchy.MatrixProductInterval(0, Hierarchy.GetHierarchyLength() - 1 );
 
-    std::cout << Hierarchy.GetJacobian();
+    std::cout << Hierarchy.GetNumericalJacobian(0.1) << std::endl << std::endl;
+
+    std::cout << Hierarchy.GetJacobian() << std::endl << std::endl;
+
 
     return 0;
 }

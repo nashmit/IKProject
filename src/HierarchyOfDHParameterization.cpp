@@ -2,6 +2,7 @@
 //
 
 #include "../include/IKProject/HierarchyOfDHParameterization.h"
+#include "../include/IKProject/Utils.h"
 
 
 HierarchyOfDHParameterization& HierarchyOfDHParameterization::Add_D_H(D_H_Parameterization& D_H)
@@ -194,6 +195,51 @@ MatrixXd HierarchyOfDHParameterization::GetJacobian()
     }
 
     return Jacobian;
+}
+
+
+MatrixXd  HierarchyOfDHParameterization::GetNumericalJacobian(double delta)
+{
+    MatrixXd Jacobian(6, GetNumberDOF() );
+
+    VectorXd Default_Q_States = GetQ();
+
+    for (int i = 1; i <= GetNumberDOF(); i++)
+    {
+        //apply +delta to joint "i" and computer the hierarchy
+        SetQ( Default_Q_States );
+        SetQforJoint( i, Default_Q_States( i - 1 ) + delta );
+        Matrix4x4d HomogeniousMatrixPlusDelta = MatrixProductInterval(0, GetHierarchyLength() - 1 );
+
+        //apply -delta to joint "i" and computer the hierarchy
+        SetQ( Default_Q_States );
+        SetQforJoint( i, Default_Q_States( i - 1 ) - delta );
+        Matrix4x4d HomogeniousMatrixMinusDelta = MatrixProductInterval(0, GetHierarchyLength() - 1 );
+
+        //extract translation and rotation for hierarchy with +delta
+        Vector3d Translation_PlusDelta = GetTraslationFromHomogeniousMatrix( HomogeniousMatrixPlusDelta );
+        Vector3d Rotations_PlusDelta = GetEulerRotationsFromHomogeniousMatrix( HomogeniousMatrixPlusDelta );
+
+        //extract translation and rotation for hierarchy with -delta
+        Vector3d Translation_MinusDelta = GetTraslationFromHomogeniousMatrix( HomogeniousMatrixMinusDelta );
+        Vector3d Rotation_MinusDelta = GetEulerRotationsFromHomogeniousMatrix( HomogeniousMatrixMinusDelta );
+
+        Vector3d DeltaTranslation = Translation_PlusDelta - Translation_MinusDelta;
+        Vector3d DeltaRotation = Rotations_PlusDelta - Rotation_MinusDelta;
+
+        Jacobian( 0, i - 1 ) = DeltaTranslation( 0 ) / ( 2 * delta );
+        Jacobian( 1, i - 1 ) = DeltaTranslation( 1 ) / ( 2 * delta );
+        Jacobian( 2, i - 1 ) = DeltaTranslation( 2 ) / ( 2 * delta );
+
+        Jacobian( 3, i - 1 ) = DeltaRotation( 0 ) / ( 2 * delta );
+        Jacobian( 4, i - 1 ) = DeltaRotation( 1 ) / ( 2 * delta );
+        Jacobian( 5, i - 1 ) = DeltaRotation( 2 ) / ( 2 * delta );
+    }
+
+    SetQ( Default_Q_States );
+
+    return Jacobian;
+
 }
 
 //JointNumber starts from 1

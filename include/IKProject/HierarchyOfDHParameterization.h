@@ -71,6 +71,7 @@ public:
     Matrix4x4d MatrixProductInterval(int from, int to);
 
     MatrixXd GetJacobian();
+    MatrixXd GetNumericalJacobian(double delta);
 
     // get value of DOF for Joint JointNumber
     double GetQforJoint( int JointNumber );
