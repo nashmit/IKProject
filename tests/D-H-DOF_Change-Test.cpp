@@ -35,12 +35,12 @@ int main()
     Matrix4x4d HomogeniousMatrix = KuKa.GetHierarchyTransformationMatrix();
 
 
-    std::cout <<"\nHierarchy transformation matrix (D-H parametrization): \n"
+    std::cout << "\nHierarchy transformation matrix (D-H parametrization): \n"
               << HomogeniousMatrix << std::endl << std::endl
               << "Position (D-H parametrization): \n"
               << GetTraslationFromHomogeniousMatrix( HomogeniousMatrix ) << std::endl << std::endl
               << "Orientation (D-H parametrization): \n"
-              << GetRotationsFromHomogeniousMatrix( HomogeniousMatrix ) << std::endl << std::endl;
+              << GetEulerRotationsFromHomogeniousMatrix(HomogeniousMatrix) << std::endl << std::endl;
 
 
     //Joint orientation test after applying the hierarchy transformation.

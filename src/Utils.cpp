@@ -16,7 +16,7 @@ Vector3d GetTraslationFromHomogeniousMatrix( Matrix4x4d homogeniousMatrix )
     return Translation;
 }
 
-Vector3d GetRotationsFromHomogeniousMatrix( Matrix4x4d homogeniousMatrix )
+Vector3d GetEulerRotationsFromHomogeniousMatrix(Matrix4x4d homogeniousMatrix )
 {
     Vector3d Rotations;
 

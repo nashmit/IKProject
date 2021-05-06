@@ -6,7 +6,8 @@
 
 Vector3d GetTraslationFromHomogeniousMatrix( Matrix4x4d homogeniousMatrix );
 
-Vector3d GetRotationsFromHomogeniousMatrix( Matrix4x4d homogeniousMatrix );
+//Rotation around X,Y,Z axes
+Vector3d GetEulerRotationsFromHomogeniousMatrix(Matrix4x4d homogeniousMatrix );
 
 Matrix4x4d ExtractRotationMatrix( Matrix4x4d homogeniousMatrix );
 
