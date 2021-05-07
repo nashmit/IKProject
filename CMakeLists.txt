@@ -39,7 +39,7 @@ add_executable(kuka_rbdl_IK_Test tests/kuka_rbdl_IK_Test.cpp)
 add_executable(LoadAndWriteAnimation_LUA_KukaRobot_Test tests/LoadAndWriteAnimation_LUA_KukaRobot_Test.cpp include/IK.h)
 add_executable(D-H-JacobianTest tests/D-H-JacobianTest.cpp src/HierarchyOfDHParameterization.cpp src/D_H_Parameterization.cpp src/Utils.cpp src/KuKa_KR5_R850_D_H.cpp include/IK.h)
 add_executable(Build_KuKa_KR5_R850_D_H-Test tests/Build_KuKa_KR5_R850_D_H-Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
-add_executable(D-H-DOF_Change-Test tests/D-H-DOF_Variation-Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
+add_executable(D-H-DOF_Variation-Test tests/D-H-DOF_Variation-Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
 add_executable(Trihedral_Orientation_In_Each_Frame_Test tests/Trihedral_Orientation_In_Each_Frame_Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
 
 # link libraries to your executable
@@ -55,7 +55,7 @@ target_link_libraries(Trihedral_Orientation_In_Each_Frame_Test ${EIGEN3_LIBRARIE
 		${RBDL_LuaModel_LIBRARY}
 		${LUA_LIBRARIES}
 		)
-target_link_libraries(D-H-DOF_Change-Test ${EIGEN3_LIBRARIES}
+target_link_libraries(D-H-DOF_Variation-Test ${EIGEN3_LIBRARIES}
 		${RBDL_LIBRARY}
 		${RBDL_LuaModel_LIBRARY}
 		${LUA_LIBRARIES}

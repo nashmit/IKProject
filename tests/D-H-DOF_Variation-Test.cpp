@@ -11,7 +11,7 @@ int main()
     Vector6d Q_state;
 
     //generalized coordinates state values.
-    Q_state << EIGEN_PI, 0, -EIGEN_PI/2, 0, 0, EIGEN_PI/2;
+    Q_state << 0, 0, 0, 0, 0, 0;
 
     // Get the IDs for the end effector given by the name in the lua file
     //end effector

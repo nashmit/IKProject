@@ -214,6 +214,7 @@ MatrixXd  HierarchyOfDHParameterization::GetNumericalJacobian(double delta)
         //apply -delta to joint "i" and computer the hierarchy
         SetQ( Default_Q_States );
         SetQforJoint( i, Default_Q_States( i - 1 ) - delta );
+        //SetQforJoint( i, Default_Q_States( i - 1 ) );
         Matrix4x4d HomogeniousMatrixMinusDelta = MatrixProductInterval(0, GetHierarchyLength() - 1 );
 
         //extract translation and rotation for hierarchy with +delta
@@ -227,6 +228,7 @@ MatrixXd  HierarchyOfDHParameterization::GetNumericalJacobian(double delta)
         Vector3d DeltaTranslation = Translation_PlusDelta - Translation_MinusDelta;
         Vector3d DeltaRotation = Rotations_PlusDelta - Rotation_MinusDelta;
 
+
         Jacobian( 0, i - 1 ) = DeltaTranslation( 0 ) / ( 2 * delta );
         Jacobian( 1, i - 1 ) = DeltaTranslation( 1 ) / ( 2 * delta );
         Jacobian( 2, i - 1 ) = DeltaTranslation( 2 ) / ( 2 * delta );
@@ -234,6 +236,17 @@ MatrixXd  HierarchyOfDHParameterization::GetNumericalJacobian(double delta)
         Jacobian( 3, i - 1 ) = DeltaRotation( 0 ) / ( 2 * delta );
         Jacobian( 4, i - 1 ) = DeltaRotation( 1 ) / ( 2 * delta );
         Jacobian( 5, i - 1 ) = DeltaRotation( 2 ) / ( 2 * delta );
+
+
+        /*
+        Jacobian( 0, i - 1 ) = DeltaTranslation( 0 ) / ( delta );
+        Jacobian( 1, i - 1 ) = DeltaTranslation( 1 ) / ( delta );
+        Jacobian( 2, i - 1 ) = DeltaTranslation( 2 ) / ( delta );
+
+        Jacobian( 3, i - 1 ) = DeltaRotation( 0 ) / ( delta );
+        Jacobian( 4, i - 1 ) = DeltaRotation( 1 ) / ( delta );
+        Jacobian( 5, i - 1 ) = DeltaRotation( 2 ) / ( delta );
+        */
     }
 
     SetQ( Default_Q_States );
@@ -258,7 +271,7 @@ int HierarchyOfDHParameterization::GetJointIndexInHierarchyForJointNumber(int Jo
             return i;
     }
 
-    assert(!"JointNumber to big!");
+    assert(!"JointNumber too big!");
 }
 
 // joint number starts with 1
@@ -303,5 +316,5 @@ void HierarchyOfDHParameterization::SetQ( VectorXd Q )
 
     // joint number starts with 1
     for(int i = 0; i < GetNumberDOF(); i++)
-        D_Hs[ GetJointIndexInHierarchyForJointNumber(i + 1 ) ].SetDOF(Q[ i ] );
+        D_Hs[ GetJointIndexInHierarchyForJointNumber(i + 1 ) ].SetDOF( Q[ i ] );
 }
