@@ -136,7 +136,7 @@ HierarchyOfDHParameterization KuKa_KR5_R850_D_H::GetHierarchy()
     return Hierarchy;
 }
 
-void KuKa_KR5_R850_D_H::SetQ( Vector6d Q_states )
+void KuKa_KR5_R850_D_H::SetQ( VectorXd Q_states )
 {
     Hierarchy.SetQ( Q_states );
 }
@@ -154,4 +154,91 @@ void KuKa_KR5_R850_D_H::SetQforJoint( int  JointNumber, double value )
 double KuKa_KR5_R850_D_H::GetQforJoint(int JointNumber)
 {
     return Hierarchy.GetQforJoint( JointNumber );
+}
+
+// method for calculating the pseudo-Inverse as recommended by Eigen developers
+template<typename _Matrix_Type_>
+_Matrix_Type_ pseudoInverse(const _Matrix_Type_ &a, double epsilon = std::numeric_limits<double>::epsilon())
+{
+    Eigen::JacobiSVD< _Matrix_Type_ > svd(a ,Eigen::ComputeThinU | Eigen::ComputeThinV);
+    double tolerance = epsilon * std::max(a.cols(), a.rows()) *svd.singularValues().array().abs()(0);
+    return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
+}
+
+
+VectorXd KuKa_KR5_R850_D_H::ComputeIK3D( VectorXd Q_initial, Vector3d Target_position )
+{
+    Vector6d Q_current = Q_initial;
+    Vector6d Q_next = Q_initial;
+
+    int nr = 0;
+
+    while(1)
+    {
+        nr++;
+        Q_current = Q_next;
+        Hierarchy.SetQ( Q_current );
+
+        Vector3d Current_Target;
+        Current_Target << GetTraslationFromHomogeniousMatrix( GetHierarchyTransformationMatrix() );
+
+        Vector3d DeltaError = Target_position - Current_Target;
+
+        std::cout << "Iteration: " << nr << std::endl << DeltaError << std::endl << std::endl;
+        if(nr>10)
+            break;
+
+        MatrixXd Jacobian = Hierarchy.GetJacobian3D();
+
+        //double det = Jacobian.determinant();
+        //assert( det != 0 );
+
+        MatrixXd Inv_Jacobian = pseudoInverse(Jacobian);
+
+        Q_next = Q_current + 0.1 * Inv_Jacobian * DeltaError;
+
+    }
+    return Q_current;
+
+}
+
+
+VectorXd KuKa_KR5_R850_D_H::ComputeIK( VectorXd Q_initial, Vector6d Target_position_orientation )
+{
+    Vector6d Q_current = Q_initial;
+    Vector6d Q_next = Q_initial;
+
+    int nr = 0;
+
+    while(1)
+    {
+        nr++;
+        Q_current = Q_next;
+        Hierarchy.SetQ( Q_current );
+
+        Vector6d Current_Target_position_orientation;
+        Current_Target_position_orientation <<
+            GetTraslationFromHomogeniousMatrix( GetHierarchyTransformationMatrix() ),
+            GetEulerRotationsFromHomogeniousMatrix( GetHierarchyTransformationMatrix() );
+
+
+        Vector6d DeltaError = Target_position_orientation - Current_Target_position_orientation;
+
+        std::cout << "Iteration: " << nr << " DeltaError:" << std::endl << DeltaError << std::endl << std::endl;
+        if(nr>50)
+            break;
+
+        MatrixXd Jacobian = Hierarchy.GetNumericalJacobian(0.00001);
+        //MatrixXd Jacobian = Hierarchy.GetJacobian();
+
+        std::cout << "Jacobian " << std::endl << Jacobian << std::endl;
+
+        MatrixXd Inv_Jacobian = pseudoInverse(Jacobian);
+
+        Q_next = Q_current +   0.1* Inv_Jacobian * DeltaError;
+
+    }
+    return Q_current;
+
+
 }

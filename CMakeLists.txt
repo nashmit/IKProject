@@ -41,11 +41,16 @@ add_executable(D-H-JacobianTest tests/D-H-JacobianTest.cpp src/HierarchyOfDHPara
 add_executable(Build_KuKa_KR5_R850_D_H-Test tests/Build_KuKa_KR5_R850_D_H-Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
 add_executable(D-H-DOF_Variation-Test tests/D-H-DOF_Variation-Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
 add_executable(Trihedral_Orientation_In_Each_Frame_Test tests/Trihedral_Orientation_In_Each_Frame_Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
-
+add_executable(IK_Test tests/IK_Test.cpp src/KuKa_KR5_R850_D_H.cpp src/D_H_Parameterization.cpp src/HierarchyOfDHParameterization.cpp src/Utils.cpp src/Trihedral.cpp include/IK.h)
 # link libraries to your executable
 # usage: target_link_libraries(EXECUTABLE_NAME LIBRARY1 LIBRARY2 ...)
 # note : this is completely useless here, as Eigen is header-only
 target_link_libraries(D-H-Test ${EIGEN3_LIBRARIES}
+		${RBDL_LIBRARY}
+		${RBDL_LuaModel_LIBRARY}
+		${LUA_LIBRARIES}
+		)
+target_link_libraries(IK_Test ${EIGEN3_LIBRARIES}
 		${RBDL_LIBRARY}
 		${RBDL_LuaModel_LIBRARY}
 		${LUA_LIBRARIES}

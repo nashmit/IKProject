@@ -73,6 +73,8 @@ public:
     MatrixXd GetJacobian();
     MatrixXd GetNumericalJacobian(double delta);
 
+    MatrixXd GetJacobian3D();
+
     // get value of DOF for Joint JointNumber
     double GetQforJoint( int JointNumber );
     void SetQforJoint( int  JointNumber, double value );

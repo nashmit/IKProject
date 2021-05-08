@@ -37,11 +37,14 @@ public:
     Matrix4x4d GetHierarchyTransformationMatrix();
     HierarchyOfDHParameterization GetHierarchy();
 
-    void SetQ( Vector6d Q_states );
+    void SetQ( VectorXd Q_states );
     Vector6d GetQ();
 
     void SetQforJoint( int  JointNumber, double value );
     double GetQforJoint( int JointNumber );
+
+    VectorXd ComputeIK( VectorXd Q_initial, Vector6d Target_position_orientation );
+    VectorXd ComputeIK3D( VectorXd Q_initial, Vector3d Target_position );
 
 };
 

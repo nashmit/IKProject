@@ -197,6 +197,23 @@ MatrixXd HierarchyOfDHParameterization::GetJacobian()
     return Jacobian;
 }
 
+MatrixXd HierarchyOfDHParameterization::GetJacobian3D()
+{
+    MatrixXd Jacobian(3, GetNumberDOF() );
+
+    for (int i = 1; i <= GetNumberDOF(); i++)
+    {
+        int JointIndexForJointNumber = GetJointIndexInHierarchyForJointNumber(i);
+
+        Jacobian(0, i - 1 ) = DerivativeOf_X_Direction_wrt_Q_i_DOF( JointIndexForJointNumber );
+        Jacobian(1, i - 1 ) = DerivativeOf_Y_Direction_wrt_Q_i_DOF( JointIndexForJointNumber );
+        Jacobian(2, i - 1 ) = DerivativeOf_Z_Direction_wrt_Q_i_DOF( JointIndexForJointNumber );
+
+    }
+
+    return Jacobian;
+}
+
 
 MatrixXd  HierarchyOfDHParameterization::GetNumericalJacobian(double delta)
 {

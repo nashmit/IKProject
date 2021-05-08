@@ -34,9 +34,9 @@ Trihedral operator* ( Matrix4x4d Transform, const Trihedral& In )
 std::ostream& operator<< ( std::ostream& out, const Trihedral& o )
 {
     out
-    << "\n\nForward axes: \n" << o.Forward
-    << "\n\nLeft axes: \n" << o.Left
-    << "\n\nUp axes: \n" << o.Up << std::endl;
+    << "\n\nForward axes (becomes): \n" << o.Forward
+    << "\n\nLeft axes (becomes): \n" << o.Left
+    << "\n\nUp axes (becomes): \n" << o.Up << std::endl;
 
     return out;
 }

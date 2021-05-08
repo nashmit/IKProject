@@ -29,7 +29,7 @@ int main()
     KuKa.SetQ(Q_state);
     HierarchyOfDHParameterization Hierarchy = KuKa.GetHierarchy();
 
-    Matrix4x4d HomogeniousMatrix = Hierarchy.MatrixProductInterval(0,8 ); //(0, Hierarchy.GetHierarchyLength() - 1 );
+    Matrix4x4d HomogeniousMatrix = Hierarchy.MatrixProductInterval(0,6 ); //(0, Hierarchy.GetHierarchyLength() - 1 );
 
 
     std::cout << "\nHierarchy transformation matrix: \n"
