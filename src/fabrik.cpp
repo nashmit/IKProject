@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <numeric> // for std::accumulate()
-#include <cmath> // for acos()
+#include <cmath> // for acos() and fabs()
 #include <string>
 #include <array>
 #include <Eigen/Geometry>
@@ -10,6 +10,7 @@
 #include "point.hpp"
 #include "fabrik.hpp"
 #include "axisLimit.hpp"
+#include "plane.hpp"
 
 using namespace Eigen;
 
@@ -74,10 +75,11 @@ calculateAnglesGivenPositions(std::vector<Point3D> startPositions,
         // Apply all rotations of the previous links to link i.
         Point3D rotatedPoint = (-1)* initialStartPositions[i] +
                                      initialStartPositions[i+1];
+
         for(int j = 0; j < i; j++)
         {
           rotatedPoint = rotatePoint(rotatedPoint, rotationAxes[j],
-                                     result[j]/180*M_PI);
+                                     result[j]/180.*M_PI);
         }
         startPositions[i+1] = rotatedPoint + startPositions[i];
     }
@@ -125,56 +127,82 @@ std::vector<double> constraintVersion(std::vector<Point3D> & positions,
   }
   // check if target is within reach
   auto distanceRootTarget = euclideanDistance(positions[0], target);
-  if (distanceRootTarget > std::accumulate(lengths.begin(), lengths.end(), 0.))
+  auto root = positions[0];
+
+  // Create plane using the root and target point, as well as target orientation
+  // (hard-coded here)
+  auto planeRT = Plane(root, target-root, Point3D(0,1,0));
+  // set the EE position as Target
+  positions[positions.size() - 1] = target;
+  for (int i = positions.size() - 2; i >= 0; i--)
   {
-    // Target is not within reach
-    std::cout << "Target " << target << " is not within reach!" << std::endl;
+    auto allowedMotion = rotationAxes[i] == 'X'?
+                         Plane(positions[i], Point3D(0, 1, 0), Point3D(0, 0, 1)) :
+                         (rotationAxes[i] == 'Y'?
+                         Plane(positions[i], Point3D(1, 0, 0), Point3D(0, 0, 1)) :
+                         Plane(positions[i], Point3D(1, 0, 0), Point3D(0, 1, 0)));
+    // project the point onto planeRT
+    Point3D positionProjection = planeRT.projectPointOnPlane(positions[i]);
+    auto newDirection = positionProjection - target;
+    auto newPosition = target + lengths[i] *
+                       (1./euclideanDistance(newDirection, Point3D(0, 0, 0)))
+                       * newDirection;
+    auto angle = calculateAnglesGivenPositions({startPositions[i], startPositions[i+1]},
+                                               {newPosition, positions[i+1]},
+                                               std::string(1, rotationAxes[i]))[0];
+    if (angle < 0 && angle < limits[i].min)
+    {
+      std::cout << "Negative angle is too small. Rotating to minimum instead" << std::endl;
+      positions[i] = rotatePoint(startPositions[i+1] - startPositions[i], rotationAxes[i], limits[i].min * M_PI / 180.);
+      std::cout << "Angle before: " << angle << ", minimum: " << limits[i].min <<
+      ", angle after new rotation: " << calculateAnglesGivenPositions({startPositions[i], startPositions[i+1]},
+                                                 {positions[i], positions[i+1]},
+                                                 std::string(1, rotationAxes[i]))[0]
+                                                 << ", expected: " << limits[i].min << std::endl;
+    } else if (angle > 0 && angle > limits[i].max){
+      std::cout << "Positive angle is too big! Rotating to maximum instead" << std::endl;
+      positions[i] = rotatePoint(startPositions[i+1] - startPositions[i], rotationAxes[i], limits[i].max * M_PI / 180.);
+      std::cout << "Angle before: " << angle << ", maximum: " << limits[i].max <<
+      ", angle after new rotation: " << calculateAnglesGivenPositions({startPositions[i], startPositions[i+1]},
+                                                 {positions[i], positions[i+1]},
+                                                 std::string(1, rotationAxes[i]))[0]
+                                                 << ", expected: " << limits[i].max << std::endl;
+    } else {
+      positions[i] = newPosition;
+    }
+
+  }
+  // stop when EE is close enough to the target position
+  /*while(euclideanDistance(positions.back(), target) > epsilon)
+  {
+    // 1) FORWARD REACHING
+    // set the EE position as target
+    positions[positions.size() - 1] = target;
+    for (int i = positions.size() - 2; i >= 0; i--)
+    {
+      // Calculate the distance between the new position i + 1 and the current position i...
+      auto distancePP = euclideanDistance(positions[i+1], positions[i]);
+      auto lambda = lengths[i] / distancePP;
+      // ... to get the new position for point i!
+      positions[i] = (1 - lambda) * positions[i+1] + lambda * positions[i];
+    }
+
+    // 2) BACKWARD REACHING
+    // move root back to its previous position
+    positions[0] = root;
     for(int i = 0; i < positions.size() - 1; i++)
     {
-      // Get the distance between target and joint position
-      auto distanceJointTarget = euclideanDistance(positions[i], target);
-      auto lambda = lengths[i] / distanceJointTarget;
-      // The new joint positions
-      positions[i+1] = (1-lambda)*positions[i] + lambda*target;
-    }
-
-  } else {
-    // target is within reach. We need to remember the root position, i.e. the position
-    // that the system is fixed in, for step 2).
-    auto root = positions[0];
-
-    // stop when EE is close enough to the target position
-    while(euclideanDistance(positions.back(), target) > epsilon)
-    {
-      // 1) FORWARD REACHING
-      // set the EE position as target
-      positions[positions.size() - 1] = target;
-      for (int i = positions.size() - 2; i >= 0; i--)
-      {
-        // Calculate the distance between the new position i + 1 and the current position i...
-        auto distancePP = euclideanDistance(positions[i+1], positions[i]);
-        auto lambda = lengths[i] / distancePP;
-        // ... to get the new position for point i!
-        positions[i] = (1 - lambda) * positions[i+1] + lambda * positions[i];
-      }
-
-      // 2) BACKWARD REACHING
-      // move root back to its previous position
-      positions[0] = root;
-      for(int i = 0; i < positions.size() - 1; i++)
-      {
-        // Same algorithm as in Step 1), but we go from root to EE
-        auto distancePP = euclideanDistance(positions[i+1], positions[i]);
-        auto lambda = lengths[i] / distancePP;
-        positions[i+1] = (1 - lambda) * positions[i] + lambda * positions[i+1];
-      }
-    }
-    std::cout << "Target " << target << " is within reach!\nResult:" << std::endl;
-    for (auto position: positions)
-    {
-      std::cout << position << std::endl;
+      // Same algorithm as in Step 1), but we go from root to EE
+      auto distancePP = euclideanDistance(positions[i+1], positions[i]);
+      auto lambda = lengths[i] / distancePP;
+      positions[i+1] = (1 - lambda) * positions[i] + lambda * positions[i+1];
     }
   }
+  std::cout << "Target " << target << " is within reach!\nResult:" << std::endl;
+  for (auto position: positions)
+  {
+    std::cout << position << std::endl;
+  }*/
   return calculateAnglesGivenPositions(startPositions, positions, rotationAxes);
 }
 
@@ -214,7 +242,10 @@ std::vector<double> simpleVersion(std::vector<Point3D> & positions,
     auto root = positions[0];
 
     // stop when EE is close enough to the target position
-    while(euclideanDistance(positions.back(), target) > epsilon)
+    //while(euclideanDistance(positions.back(), target) > epsilon)
+    while ((std::fabs(positions.back().getXYZ(0) - target.getXYZ(0)) > epsilon) ||
+           (std::fabs(positions.back().getXYZ(1) - target.getXYZ(1)) > epsilon) ||
+           (std::fabs(positions.back().getXYZ(2) - target.getXYZ(2)) > epsilon))
     {
       // 1) FORWARD REACHING
       // set the EE position as target
