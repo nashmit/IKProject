@@ -6,6 +6,10 @@ int main()
 
     KuKa_KR5_R850_D_H KuKa;
 
+    KuKa.SetQforJoint(2, EIGEN_PI/3);
+    KuKa.SetQforJoint(4, -EIGEN_PI/7);
+    KuKa.SetQforJoint(6, EIGEN_PI/8);
+
     HierarchyOfDHParameterization Hierarchy = KuKa.GetHierarchy();
 
     //Matrix4x4d HomogeniousMatrix = Hierarchy.MatrixProductInterval(0, Hierarchy.GetHierarchyLength() - 1 );
@@ -24,6 +28,7 @@ int main()
         abort();
     }
 
+    /*
     unsigned int A6_id = model.GetBodyId("A6");
     Vector6d Q_state;
     Q_state << 0, 0, 0, 0, 0, 0;
@@ -34,6 +39,7 @@ int main()
 
     std::cout << "Jacobian using RBDL:" << std::endl;
     std::cout << G << std::endl << std::endl;
+    */
 
     return 0;
 }

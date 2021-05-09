@@ -184,8 +184,11 @@ VectorXd KuKa_KR5_R850_D_H::ComputeIK3D( VectorXd Q_initial, Vector3d Target_pos
 
         Vector3d DeltaError = Target_position - Current_Target;
 
+        if( abs( DeltaError(0) ) < 0.001 && abs( DeltaError(1) ) < 0.001 && abs( DeltaError(2) ) < 0.001 )
+            break;
+
         std::cout << "Iteration: " << nr << std::endl << DeltaError << std::endl << std::endl;
-        if(nr>10)
+        if(nr>50)
             break;
 
         MatrixXd Jacobian = Hierarchy.GetJacobian3D();
@@ -225,7 +228,12 @@ VectorXd KuKa_KR5_R850_D_H::ComputeIK( VectorXd Q_initial, Vector6d Target_posit
         Vector6d DeltaError = Target_position_orientation - Current_Target_position_orientation;
 
         std::cout << "Iteration: " << nr << " DeltaError:" << std::endl << DeltaError << std::endl << std::endl;
-        if(nr>50)
+
+        if( abs( DeltaError(0) ) < 0.001 && abs( DeltaError(1) ) < 0.001 && abs( DeltaError(2) ) < 0.001 &&
+            abs( DeltaError(3) ) < 0.01 && abs( DeltaError(4) ) < 0.01 && abs( DeltaError(5) ) < 0.01 )
+            break;
+
+        if(nr>250)
             break;
 
         MatrixXd Jacobian = Hierarchy.GetNumericalJacobian(0.00001);
@@ -235,7 +243,7 @@ VectorXd KuKa_KR5_R850_D_H::ComputeIK( VectorXd Q_initial, Vector6d Target_posit
 
         MatrixXd Inv_Jacobian = pseudoInverse(Jacobian);
 
-        Q_next = Q_current +   0.1* Inv_Jacobian * DeltaError;
+        Q_next = Q_current + 0.1 * Inv_Jacobian * DeltaError;
 
     }
     return Q_current;
