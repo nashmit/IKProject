@@ -36,6 +36,8 @@ add_executable(fabrik
 	src/fabrik.cpp
 	main.cpp)
 
+add_executable(fabrik2 tests/Fabrik_Test.cpp src/fabrik2.cpp include/fabrik2.h)
+
 # link libraries to your executable
 # usage: target_link_libraries(EXECUTABLE_NAME LIBRARY1 LIBRARY2 ...)
 # note : this is completely useless here, as Eigen is header-only
@@ -44,6 +46,13 @@ target_link_libraries(fabrik ${EIGEN3_LIBRARIES}
 	${RBDL_LuaModel_LIBRARY}
 	${LUA_LIBRARIES}
 	)
+
+target_link_libraries(fabrik2 ${EIGEN3_LIBRARIES}
+		${RBDL_LIBRARY}
+		${RBDL_LuaModel_LIBRARY}
+		${LUA_LIBRARIES}
+		)
+
 
 target_compile_features(fabrik
   PRIVATE
