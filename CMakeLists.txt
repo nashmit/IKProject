@@ -36,7 +36,7 @@ add_executable(fabrik
 	src/fabrik.cpp
 	main.cpp)
 
-add_executable(fabrik2 tests/Fabrik_Test.cpp src/fabrik2.cpp include/fabrik2.h)
+add_executable(fabrik2 tests/Fabrik_Test.cpp src/fabrik3.cpp include/fabrik3.h)
 
 # link libraries to your executable
 # usage: target_link_libraries(EXECUTABLE_NAME LIBRARY1 LIBRARY2 ...)

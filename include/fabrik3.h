@@ -1,5 +1,6 @@
-#ifndef FABRIKTEST_FABRIK2_H
-#define FABRIKTEST_FABRIK2_H
+#ifndef FABRIKTEST_FABRIK3_H
+#define FABRIKTEST_FABRIK3_H
+
 
 #include <iostream>
 #include <Eigen/Core>
@@ -36,38 +37,36 @@ typedef Matrix<double, 8, 1>  Vector8d;
 
 typedef Matrix<double, 4, 4> Matrix4x4d;
 typedef Matrix<double, 3, 3> Matrix3x3d;
+typedef Matrix<double, 3, 2> Matrix3x2d;
 
 Vector3d GetTraslationFromHomogeniousMatrix( Matrix4x4d homogeniousMatrix );
 Matrix4x4d ExtractRotationMatrix( Matrix4x4d homogeniousMatrix );
 
 
 
-class fabrik2 {
+class fabrik3 {
 
 protected:
+    std::vector< Vector3d > Points;
+    std::vector< double > Distances;
 
-    std::vector< Matrix4x4d > Frames;
+    Vector3d Target;
 
-    Vector4d Target;
 
 public:
+    void Add( Vector3d Point );
 
-    void Add( Vector4d Position, Matrix4x4d Rotation);
-    void SetTarget( Vector4d _Target );
-
-    Vector4d ComputeNewPosition( Vector4d SecondToLast, Vector4d Last, Vector4d TargetPosition );
+    void SetTarget( Vector3d _Target );
 
     void Forward();
     void Backwards();
 
-    VectorXd GetAngles();
+    Vector3d Projection( Vector3d V1, Vector3d V2, Vector3d tobeProjected );
 
-    Vector4d FromLocalToGlobal(Vector4d Point, int FrameNumber );
-    Vector4d FromGlobalToLocal(Vector4d Point, int FrameNumber );
+    Vector3d PreserveDistance( Vector3d LastPoint, Vector3d SecondToLast, double distance );
 
-    bool ApplyIK();
-
+    VectorXd GetQs();
 };
 
 
-#endif //FABRIKTEST_FABRIK2_H
+#endif //FABRIKTEST_FABRIK3_H
