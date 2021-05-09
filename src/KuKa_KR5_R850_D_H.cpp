@@ -206,7 +206,9 @@ VectorXd KuKa_KR5_R850_D_H::ComputeIK3D( VectorXd Q_initial, Vector3d Target_pos
 }
 
 
-VectorXd KuKa_KR5_R850_D_H::ComputeIK( VectorXd Q_initial, Vector6d Target_position_orientation )
+bool KuKa_KR5_R850_D_H::ComputeIK(
+        VectorXd Q_initial, Vector6d Target_position_orientation, Vector6d& Q_out,
+        double LinearError , double AngularError , int NrMaxIterations )
 {
     Vector6d Q_current = Q_initial;
     Vector6d Q_next = Q_initial;
@@ -229,15 +231,15 @@ VectorXd KuKa_KR5_R850_D_H::ComputeIK( VectorXd Q_initial, Vector6d Target_posit
 
         std::cout << "Iteration: " << nr << " DeltaError:" << std::endl << DeltaError << std::endl << std::endl;
 
-        if( abs( DeltaError(0) ) < 0.001 && abs( DeltaError(1) ) < 0.001 && abs( DeltaError(2) ) < 0.001 &&
-            abs( DeltaError(3) ) < 0.01 && abs( DeltaError(4) ) < 0.01 && abs( DeltaError(5) ) < 0.01 )
+        if( abs( DeltaError(0) ) < LinearError && abs( DeltaError(1) ) < LinearError && abs( DeltaError(2) ) < LinearError &&
+            abs( DeltaError(3) ) < AngularError && abs( DeltaError(4) ) < AngularError && abs( DeltaError(5) ) < AngularError )
             break;
 
-        if(nr>250)
+        if( nr > NrMaxIterations )
             break;
 
-        MatrixXd Jacobian = Hierarchy.GetNumericalJacobian(0.00001);
-        //MatrixXd Jacobian = Hierarchy.GetJacobian();
+        //MatrixXd Jacobian = Hierarchy.GetNumericalJacobian(0.00001);
+        MatrixXd Jacobian = Hierarchy.GetJacobian();
 
         std::cout << "Jacobian " << std::endl << Jacobian << std::endl;
 
@@ -246,7 +248,11 @@ VectorXd KuKa_KR5_R850_D_H::ComputeIK( VectorXd Q_initial, Vector6d Target_posit
         Q_next = Q_current + 0.1 * Inv_Jacobian * DeltaError;
 
     }
-    return Q_current;
 
+    Q_out = Q_current;
+
+    if(nr > 250)
+        return false;
+    return true;
 
 }

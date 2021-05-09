@@ -43,7 +43,10 @@ public:
     void SetQforJoint( int  JointNumber, double value );
     double GetQforJoint( int JointNumber );
 
-    VectorXd ComputeIK( VectorXd Q_initial, Vector6d Target_position_orientation );
+    bool ComputeIK(
+            VectorXd Q_initial, Vector6d Target_position_orientation, Vector6d& Q_out,
+            double LinearError = 0.001, double AngularError = 0.001, int NrMaxIterations = 250 );
+
     VectorXd ComputeIK3D( VectorXd Q_initial, Vector3d Target_position );
 
 };
