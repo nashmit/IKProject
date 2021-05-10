@@ -38,6 +38,8 @@ add_executable(fabrik
 
 add_executable(fabrik2 tests/Fabrik_Test.cpp src/fabrik3.cpp include/fabrik3.h)
 add_executable(ccd_test tests/ccd_Test.cpp src/ccd.cpp include/ccd.h )
+add_executable(ccd_with_RBDL_Test tests/CCD_With_RBDL_Test.cpp src/ccd.cpp include/ccd.h )
+
 
 # link libraries to your executable
 # usage: target_link_libraries(EXECUTABLE_NAME LIBRARY1 LIBRARY2 ...)
@@ -47,6 +49,12 @@ target_link_libraries(fabrik ${EIGEN3_LIBRARIES}
 	${RBDL_LuaModel_LIBRARY}
 	${LUA_LIBRARIES}
 	)
+
+target_link_libraries(ccd_with_RBDL_Test ${EIGEN3_LIBRARIES}
+		${RBDL_LIBRARY}
+		${RBDL_LuaModel_LIBRARY}
+		${LUA_LIBRARIES}
+		)
 
 target_link_libraries(ccd_test ${EIGEN3_LIBRARIES}
 		${RBDL_LIBRARY}

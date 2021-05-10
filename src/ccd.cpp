@@ -33,11 +33,15 @@ bool ccd::Iterate( double Epsilon, int iterationNumber )
 
         for (int i = Nodes.size() - 2; i >= 1; i--) {
 
+            //UpdateGlobalCoordinates !!!!!!!!!
+
             Nodes[i].transform.Rotation = RotateNodeAroundNodeTo(Nodes[i], Nodes[i + 1], Target);
             Nodes[i].transform.Rotation = EnforcingHinge(Nodes[i - 1], Nodes[i]);
         }
 
-        if(  (Nodes.back().transform.Translation - Target.transform.Translation).squaredNorm() < Epsilon )
+        std::cout << "Error iteration nr: " << nr << ":\n " << Nodes.back().transform.Translation - Target.transform.Translation << std::endl;
+
+        if( (Nodes.back().transform.Translation - Target.transform.Translation).squaredNorm() < Epsilon )
             return true;
 
         if(nr>iterationNumber)
