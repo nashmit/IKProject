@@ -19,9 +19,10 @@ Vector3d GetAxesFor( Model& model, unsigned index )
 
 void ApplyRotation(
         Model& model, unsigned pivot_id, unsigned NodeToRotate_id, Vector3d Target, Vector6d& Qs,
-        int nodeIndex, unsigned parent_id, Vector3d PivotAxes )
+        int pivotIndex, unsigned parent_id, Vector3d PivotAxes )
 {
     Vector3d pivot_worldSpace_position = CalcBodyToBaseCoordinates(model,  Qs, pivot_id,Vector3d(0,0,0),true);
+
     Eigen::Matrix3d pivot_wordSpace_orientation = CalcBodyWorldOrientation (model,  Qs, pivot_id,true);
 
     Vector3d NodeToRotate_id_worldSpace_position = CalcBodyToBaseCoordinates( model, Qs, NodeToRotate_id, Vector3d(0,0,0),true);
@@ -36,10 +37,11 @@ void ApplyRotation(
     //EnforceHinge
     Eigen::Matrix3d parent_wordSpace_orientation = CalcBodyWorldOrientation (model,  Qs, parent_id,true);
 
-    Qs[ nodeIndex ] = AngleAxisd(Quaterniond().FromTwoVectors(
+    double angle = AngleAxisd(Quaterniond().FromTwoVectors(
             pivot_wordSpace_orientation_asQuaternion * PivotAxes,
             parent_wordSpace_orientation * PivotAxes ) * pivot_wordSpace_orientation_asQuaternion ).angle();
 
+    Qs[ pivotIndex ] = angle;
 
 }
 
@@ -98,15 +100,25 @@ int main()
     {
         nrCurrentIteration++;
 
+        Vector3d EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, A6_id,Vector3d(0,0,0),true);
+
         for (int i = 5; i > 0; i--) {
-            ApplyRotation(model, index_id[i - 1], index_id[i], Target, q_start, i, index_id[i - 2], GetAxesFor(model, i) );
+            ApplyRotation(
+                    model,
+                    index_id[ i - 0 ],
+                    A6_id,
+                    Target,
+                    q_start,
+                    i - 0,
+                    index_id[ i - 2 ],
+                    GetAxesFor(model, i + 1 ) );
         }
 
-        Vector3d EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, A6_id,Vector3d(0,0,0),true);
+
 
 
         //std::cout << "----\n" << EE_worldSpace_position << "----\n" << q_start << std::endl;
-        std::cout << q_start << std::endl << "----------" << std::endl;
+        //std::cout << q_start << std::endl << "----------" << std::endl;
 
         std::cout << "Error iteration nr: " << nrCurrentIteration << "\n" << (EE_worldSpace_position - Target).squaredNorm() << "----\n";
 
