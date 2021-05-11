@@ -56,6 +56,9 @@ void ApplyRotation(
             ) * pivot_local_orientation;
     double angle = AngleAxisd( pivot_local_orientation ).angle();
 
+    Qs[ pivotIndex ] = angle;
+    return;
+
     Vector3d EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  Qs, NodeToRotate_id,Vector3d(0,0,0),true);
     double ErrorBefore = (EE_worldSpace_position - Target).squaredNorm();
 
@@ -87,6 +90,8 @@ int main()
         std::cerr << "Error loading lua file" << std::endl;
         abort();
     }
+
+    std::ofstream outfile("animationCCD_debug.csv");
 
     std::map<int,int> index_id;
 
@@ -130,6 +135,8 @@ int main()
     int nrCurrentIteration = 0;
     double Epsilon = 0.02;
 
+    outfile << 0 << ", " << q_start[0] << ", " << q_start[1] << ", " << q_start[2] << ", " << q_start[3] << ", " << q_start[4] << ", " << q_start[5] << ", " << "\n";
+
     while(1)
     {
         nrCurrentIteration++;
@@ -147,11 +154,10 @@ int main()
                     index_id[ i - 2 ],
                     GetAxesFor(model, i + 1 ),
                     GetAxesFor(model, i + 0 ),
-                    i -1 );
+                    i - 1 );
         }
 
-
-
+        outfile << nrCurrentIteration << ", " << q_start[0] << ", " << q_start[1] << ", " << q_start[2] << ", " << q_start[3] << ", " << q_start[4] << ", " << q_start[5] << ", " << "\n";
 
         //std::cout << "----\n" << EE_worldSpace_position << "----\n" << q_start << std::endl;
         //std::cout << q_start << std::endl << "----------" << std::endl;
@@ -164,6 +170,8 @@ int main()
         if( nrCurrentIteration > nrIterationMax )
             break;
     }
+
+    outfile.close();
 
 
     return 0;
