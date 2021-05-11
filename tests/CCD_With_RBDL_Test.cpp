@@ -2,6 +2,13 @@
 
 #include <map>
 
+
+double RadToAngles(double rad)
+{
+    return rad * 180 / EIGEN_PI;
+}
+
+
 //index must be between 1 and 6 for our robot
 Vector3d GetAxesFor( Model& model, unsigned index )
 {
@@ -14,12 +21,14 @@ Vector3d GetAxesFor( Model& model, unsigned index )
         return Axes;
     }
 
-    assert(!"you should not get this message!");
+    return Vector3d().setZero();
+
+    //assert(!"you should not get this message!");
 }
 
 void ApplyRotation(
         Model& model, unsigned pivot_id, unsigned NodeToRotate_id, Vector3d Target, Vector6d& Qs,
-        int pivotIndex, unsigned parent_id, Vector3d PivotAxes, Vector3d ParentAxes, int parentIndex )
+        int pivotIndex, Vector3d PivotAxes, Vector3d ParentAxes, int parentIndex )
 {
     //Vector3d pivot_worldSpace_position = CalcBodyToBaseCoordinates(model,  Qs, pivot_id,Vector3d(0,0,0),true);
     //local position in pivot frame
@@ -44,7 +53,27 @@ void ApplyRotation(
 
     //EnforceHinge
     //Eigen::Matrix3d parent_wordSpace_orientation = CalcBodyWorldOrientation (model,  Qs, parent_id,true);
-    Quaterniond parent_local_orientation( AngleAxisd ( Qs[ parentIndex ], ParentAxes ) );
+
+    Quaterniond parent_local_orientation;
+
+    if( parentIndex == - 1 )
+    {
+        Matrix3x3d  M;
+        M <<
+        0, 1, 0,
+        1, 0, 0,
+        0, 0, -1;
+
+        AngleAxisd Axes(M);
+        Vector3d AxesBase = Axes.axis();
+        double angle = Axes.angle();
+
+        parent_local_orientation = Quaterniond ( AngleAxisd( angle, AxesBase) );
+    }
+    else
+    {
+        parent_local_orientation = Quaterniond( AngleAxisd ( Qs[ parentIndex ], ParentAxes ) );
+    }
 
 
     //double angle = AngleAxisd(Quaterniond().FromTwoVectors(
@@ -56,9 +85,6 @@ void ApplyRotation(
             ) * pivot_local_orientation;
     double angle = AngleAxisd( pivot_local_orientation ).angle();
 
-    Qs[ pivotIndex ] = angle;
-    return;
-
     Vector3d EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  Qs, NodeToRotate_id,Vector3d(0,0,0),true);
     double ErrorBefore = (EE_worldSpace_position - Target).squaredNorm();
 
@@ -66,9 +92,19 @@ void ApplyRotation(
     Qs[ pivotIndex ] = angle;
 
     EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  Qs, NodeToRotate_id,Vector3d(0,0,0),true);
-    double ErrorAfter = (EE_worldSpace_position - Target).squaredNorm();
+    double ErrorAfterPositiveAngle = (EE_worldSpace_position - Target).squaredNorm();
 
-    if(ErrorBefore<ErrorAfter)
+
+    Qs[ pivotIndex ] = -angle;
+    EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  Qs, NodeToRotate_id,Vector3d(0,0,0),true);
+    double ErrorAfterNegativeAngle = (EE_worldSpace_position - Target).squaredNorm();
+
+    if( ErrorAfterPositiveAngle < ErrorAfterNegativeAngle )
+    {
+        Qs[ pivotIndex ] = angle;
+    }
+
+    if(ErrorBefore< min( ErrorAfterPositiveAngle, ErrorAfterNegativeAngle ) )
         Qs[ pivotIndex ] = aux;
 
     //std::cout << "Error : " << "\n" << (EE_worldSpace_position - Target).squaredNorm()<< "\n----\n";
@@ -123,7 +159,7 @@ int main()
     index_id[6]=A6_id;
 
 
-    //Vector3d Target = CalcBodyToBaseCoordinates(model, q_start, A4_id,Vector3d(0,0,0),true);
+    //Vector3d Target = CalcBodyToBaseCoordinates(model, q_start, A3_id,Vector3d(0,0,0),true);
     Vector3d Target;
     //Target << -0.5, -0.145, 0.2;
     //Target << 0, 0.2, 0.2;
@@ -135,7 +171,7 @@ int main()
     int nrCurrentIteration = 0;
     double Epsilon = 0.02;
 
-    outfile << 0 << ", " << q_start[0] << ", " << q_start[1] << ", " << q_start[2] << ", " << q_start[3] << ", " << q_start[4] << ", " << q_start[5] << ", " << "\n";
+    outfile << 0 << ", " << RadToAngles(q_start[0]) << ", " << RadToAngles(q_start[1]) << ", " << RadToAngles(q_start[2]) << ", " << RadToAngles(q_start[3]) << ", " << RadToAngles(q_start[4]) << ", " << RadToAngles(q_start[5]) << ", " << "\n";
 
     while(1)
     {
@@ -143,7 +179,7 @@ int main()
 
         Vector3d EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, A6_id,Vector3d(0,0,0),true);
 
-        for (int i = 4; i > 0; i--) {
+        for (int i = 5; i >= 0; i--) {
             ApplyRotation(
                     model,
                     index_id[ i - 0 ],
@@ -151,13 +187,12 @@ int main()
                     Target,
                     q_start,
                     i - 0,
-                    index_id[ i - 2 ],
                     GetAxesFor(model, i + 1 ),
                     GetAxesFor(model, i + 0 ),
                     i - 1 );
         }
 
-        outfile << nrCurrentIteration << ", " << q_start[0] << ", " << q_start[1] << ", " << q_start[2] << ", " << q_start[3] << ", " << q_start[4] << ", " << q_start[5] << ", " << "\n";
+        outfile << nrCurrentIteration << ", " <<  RadToAngles(q_start[0]) << ", " << RadToAngles(q_start[1]) << ", " << RadToAngles(q_start[2]) << ", " << RadToAngles(q_start[3]) << ", " << RadToAngles(q_start[4]) << ", " << RadToAngles(q_start[5]) << ", " << "\n";
 
         //std::cout << "----\n" << EE_worldSpace_position << "----\n" << q_start << std::endl;
         //std::cout << q_start << std::endl << "----------" << std::endl;
