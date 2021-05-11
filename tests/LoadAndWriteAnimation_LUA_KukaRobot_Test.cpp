@@ -9,6 +9,12 @@
 
 #include "../include/IK.h"
 
+double RadToAngles(double rad)
+{
+    return rad * 180 / EIGEN_PI;
+}
+
+
 int main(int argc, char *argv[]) {
 
 
@@ -45,7 +51,8 @@ int main(int argc, char *argv[]) {
     //Vector3d A4_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, A4_id,Vector3d(0,0,0),true);
     //Eigen::Matrix3d A4_wordSpace_orientation = CalcBodyWorldOrientation (model,  q_start, A4_id,false);
     Vector3d Target;
-    Target << -0.3, -0.2, 0.3;
+    //Target << -0.3, -0.2, 0.3;
+    Target << -0.1, -0.3, 0.3;
 
     InverseKinematicsConstraintSet cs;
     //cs.AddPointConstraint (EE_id,Vector3d(0,0,0), A4_worldSpace_position);
@@ -62,7 +69,7 @@ int main(int argc, char *argv[]) {
 
     // Write result to file
     outfile << 0 << ", " << 0 << ", " << 0  << ", " << 0 << ", " << 0 << ", " << 0 << ", " << 0 << ", " << "\n";
-    outfile << 1 << ", " << q[0] << ", " << q[1] << ", " << q[2] << ", " << q[3] << ", " << q[4] << ", " << q[5] << ", " << "\n";
+    outfile << 1 << ", " << RadToAngles(q[0]) << ", " << RadToAngles(q[1]) << ", " << RadToAngles(q[2]) << ", " << RadToAngles(q[3]) << ", " << RadToAngles(q[4]) << ", " << RadToAngles(q[5]) << ", " << "\n";
 
     outfile.close();
 
