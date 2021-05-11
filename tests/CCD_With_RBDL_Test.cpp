@@ -19,29 +19,57 @@ Vector3d GetAxesFor( Model& model, unsigned index )
 
 void ApplyRotation(
         Model& model, unsigned pivot_id, unsigned NodeToRotate_id, Vector3d Target, Vector6d& Qs,
-        int pivotIndex, unsigned parent_id, Vector3d PivotAxes )
+        int pivotIndex, unsigned parent_id, Vector3d PivotAxes, Vector3d ParentAxes, int parentIndex )
 {
-    Vector3d pivot_worldSpace_position = CalcBodyToBaseCoordinates(model,  Qs, pivot_id,Vector3d(0,0,0),true);
+    //Vector3d pivot_worldSpace_position = CalcBodyToBaseCoordinates(model,  Qs, pivot_id,Vector3d(0,0,0),true);
+    //local position in pivot frame
+    Vector3d TargetInPivotCoordinatesSpace = CalcBaseToBodyCoordinates(model, Qs, pivot_id, Target, true );
 
-    Eigen::Matrix3d pivot_wordSpace_orientation = CalcBodyWorldOrientation (model,  Qs, pivot_id,true);
+    //Eigen::Matrix3d pivot_wordSpace_orientation = CalcBodyWorldOrientation (model,  Qs, pivot_id,true);
+    //local rotation
+    Quaterniond pivot_local_orientation(AngleAxisd( Qs[ pivotIndex ], PivotAxes ) );
 
-    Vector3d NodeToRotate_id_worldSpace_position = CalcBodyToBaseCoordinates( model, Qs, NodeToRotate_id, Vector3d(0,0,0),true);
-    //Eigen::Matrix3d NodeToRotate_id_wordSpace_orientation = CalcBodyWorldOrientation (model,  Qs, NodeToRotate_id,true);
+    //Vector3d NodeToRotate_id_worldSpace_position = CalcBodyToBaseCoordinates( model, Qs, NodeToRotate_id, Vector3d(0,0,0),true);
+    Vector3d NodeToRotateInGlobalSpace = CalcBodyToBaseCoordinates(model, Qs, NodeToRotate_id, Vector3d::Zero(), true);
+    Vector3d NodeToRotateInPivotCoordinatesSpace = CalcBaseToBodyCoordinates(model, Qs, pivot_id, NodeToRotateInGlobalSpace, true);
 
-    Quaterniond pivot_wordSpace_orientation_asQuaternion = Quaterniond().FromTwoVectors(
-            NodeToRotate_id_worldSpace_position - pivot_worldSpace_position,
-            Target - pivot_worldSpace_position ) * Quaterniond( pivot_wordSpace_orientation );
 
+    //Quaterniond pivot_wordSpace_orientation_asQuaternion = Quaterniond().FromTwoVectors(
+    //        NodeToRotate_id_worldSpace_position - pivot_worldSpace_position,
+    //        Target - pivot_worldSpace_position ) * Quaterniond( pivot_wordSpace_orientation );
+    pivot_local_orientation = Quaterniond().FromTwoVectors(
+            NodeToRotateInPivotCoordinatesSpace,
+            TargetInPivotCoordinatesSpace) * pivot_local_orientation;
 
 
     //EnforceHinge
-    Eigen::Matrix3d parent_wordSpace_orientation = CalcBodyWorldOrientation (model,  Qs, parent_id,true);
+    //Eigen::Matrix3d parent_wordSpace_orientation = CalcBodyWorldOrientation (model,  Qs, parent_id,true);
+    Quaterniond parent_local_orientation( AngleAxisd ( Qs[ parentIndex ], ParentAxes ) );
 
-    double angle = AngleAxisd(Quaterniond().FromTwoVectors(
-            pivot_wordSpace_orientation_asQuaternion * PivotAxes,
-            parent_wordSpace_orientation * PivotAxes ) * pivot_wordSpace_orientation_asQuaternion ).angle();
 
+    //double angle = AngleAxisd(Quaterniond().FromTwoVectors(
+    //        pivot_wordSpace_orientation_asQuaternion * PivotAxes,
+    //        parent_wordSpace_orientation * PivotAxes ) * pivot_wordSpace_orientation_asQuaternion ).angle();
+    pivot_local_orientation = Quaterniond().FromTwoVectors(
+            pivot_local_orientation * PivotAxes,
+            parent_local_orientation * PivotAxes
+            ) * pivot_local_orientation;
+    double angle = AngleAxisd( pivot_local_orientation ).angle();
+
+    Vector3d EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  Qs, NodeToRotate_id,Vector3d(0,0,0),true);
+    double ErrorBefore = (EE_worldSpace_position - Target).squaredNorm();
+
+    double aux = Qs[ pivotIndex ];
     Qs[ pivotIndex ] = angle;
+
+    EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  Qs, NodeToRotate_id,Vector3d(0,0,0),true);
+    double ErrorAfter = (EE_worldSpace_position - Target).squaredNorm();
+
+    if(ErrorBefore<ErrorAfter)
+        Qs[ pivotIndex ] = aux;
+
+    //std::cout << "Error : " << "\n" << (EE_worldSpace_position - Target).squaredNorm()<< "\n----\n";
+
 
 }
 
@@ -90,11 +118,17 @@ int main()
     index_id[6]=A6_id;
 
 
-    Vector3d Target = CalcBodyToBaseCoordinates(model, q_start, A4_id,Vector3d(0,0,0),true);
+    //Vector3d Target = CalcBodyToBaseCoordinates(model, q_start, A4_id,Vector3d(0,0,0),true);
+    Vector3d Target;
+    //Target << -0.5, -0.145, 0.2;
+    //Target << 0, 0.2, 0.2;
+    //Target << -0.1, -0.3, 0.3;
+    Target << -0.3, -0.2, 0.3;
+
 
     int nrIterationMax = 100;
     int nrCurrentIteration = 0;
-    double Epsilon = 0.01;
+    double Epsilon = 0.02;
 
     while(1)
     {
@@ -102,7 +136,7 @@ int main()
 
         Vector3d EE_worldSpace_position = CalcBodyToBaseCoordinates(model,  q_start, A6_id,Vector3d(0,0,0),true);
 
-        for (int i = 5; i > 0; i--) {
+        for (int i = 4; i > 0; i--) {
             ApplyRotation(
                     model,
                     index_id[ i - 0 ],
@@ -111,7 +145,9 @@ int main()
                     q_start,
                     i - 0,
                     index_id[ i - 2 ],
-                    GetAxesFor(model, i + 1 ) );
+                    GetAxesFor(model, i + 1 ),
+                    GetAxesFor(model, i + 0 ),
+                    i -1 );
         }
 
 
