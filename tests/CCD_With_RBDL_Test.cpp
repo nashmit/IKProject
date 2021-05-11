@@ -163,8 +163,8 @@ int main()
     Vector3d Target;
     //Target << -0.5, -0.145, 0.2;
     //Target << 0, 0.2, 0.2;
-    //Target << -0.1, -0.3, 0.3;
-    Target << -0.3, -0.2, 0.3;
+    Target << -0.1, -0.3, 0.3;
+    //Target << -0.3, -0.2, 0.3;
 
 
     int nrIterationMax = 100;
