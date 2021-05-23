@@ -79,6 +79,9 @@ target_compile_features(fabrik
 
 configure_file(models/chain.lua models/chain.lua COPYONLY)
 configure_file(meshes/unit_cube.obj meshes/unit_cube.obj COPYONLY)
+configure_file(LUA/kuka.lua LUA/kuka.lua COPYONLY)
+configure_file(meshes/kuka.obj meshes/kuka.obj COPYONLY)
+configure_file(models/target2.lua models/target2.lua COPYONLY)
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")

@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
 
 
 	// SIMPLE VERSION CIRCLE
-  double radius = 1;
+  double radius = 2;
 	for(double angle = 0; angle <= 2*M_PI; angle += M_PI/20)
 	{
 		if (angle <= M_PI/2)

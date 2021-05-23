@@ -127,8 +127,13 @@ int main()
         abort();
     }
 
-    std::ofstream outfile("animationCCD_debug.csv");
+    //std::ofstream outfile("animationCCD_Target1.csv");
+    std::ofstream outfile("animationCCD_Target2.csv");
+    //std::ofstream outfile("animationCCD_Target3.csv");
 
+    // This header is necessary if the animation file is for meshup model,
+    // delete if you want to try out on the real robot!
+    outfile << "COLUMNS:\ntime, A1:R:-Z, A2:R:Y, A3:R:Y, A4:R:-X, A5:R:Y, A6:R:X\nDATA:\n";
     std::map<int,int> index_id;
 
 
@@ -163,8 +168,12 @@ int main()
     Vector3d Target;
     //Target << -0.5, -0.145, 0.2;
     //Target << 0, 0.2, 0.2;
-    Target << -0.1, -0.3, 0.3;
-    //Target << -0.3, -0.2, 0.3;
+    // For presentation: This is target 1
+    //Target << -0.1, -0.3, 0.3;
+    // This is target 2
+     Target << -0.3, -0.2, 0.3;
+    // This is target 3
+    //Target << 0.5, 0, 0;
 
 
     int nrIterationMax = 100;
